@@ -20,11 +20,12 @@ body {
 }
 
 #outputContainer {
+    display: block;
     border: 1px dotted #dddddd;
     -moz-border-radius: 3px; 
-    height: 50%;
     overflow-y: scroll;
-    overflow-x: hide;
+    overflow-x: auto;
+    height: 50%;
     background: #000000;
     color: #ffffff;
 }
@@ -38,7 +39,7 @@ body {
     -moz-border-radius: 3px;
     height: 95%;
     overflow-y: scroll;
-    overflow-x: hide;
+    overflow-x: auto;
 }
 
 .debugMsg:nth-child(odd) {

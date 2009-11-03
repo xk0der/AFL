@@ -9,16 +9,19 @@ class Interpreter {
     public function __construct() {
         // Predfined internal functions
         $this->symbolTable = array(
-         '+_VAR_VAR' => array('rvalue' => '+ a b', 'args' => array('a','b')),
-         '*_VAR_VAR' => array('rvalue' => '* a b', 'args' => array('a','b')),
-         '/_VAR_VAR' => array('rvalue' => '/ a b', 'args' => array('a','b')),
-         '-_VAR_VAR' => array('rvalue' => '- a b', 'args' => array('a','b')),
-         '&_VAR_VAR' => array('rvalue' => '& a b', 'args' => array('a','b')),
-         '&&_VAR_VAR' => array('rvalue' => '&& a b', 'args' => array('a','b')),
-         '|_VAR_VAR' => array('rvalue' => '| a b', 'args' => array('a','b')),
-         '||_VAR_VAR' => array('rvalue' => '|| a b', 'args' => array('a','b')),
-         '^_VAR_VAR' => array('rvalue' => '^ a b', 'args' => array('a','b')),
-         '~_VAR' =>     array('rvalue' => '~ a', 'args' => array('a')),
+         '+_VAR_VAR' =>     array('rvalue' => '+ a b', 'args' => array('a','b')),
+         '*_VAR_VAR' =>     array('rvalue' => '* a b', 'args' => array('a','b')),
+         '/_VAR_VAR' =>     array('rvalue' => '/ a b', 'args' => array('a','b')),
+         '-_VAR_VAR' =>     array('rvalue' => '- a b', 'args' => array('a','b')),
+         '&_VAR_VAR' =>     array('rvalue' => '& a b', 'args' => array('a','b')),
+         '&&_VAR_VAR' =>    array('rvalue' => '&& a b', 'args' => array('a','b')),
+         '|_VAR_VAR' =>     array('rvalue' => '| a b', 'args' => array('a','b')),
+         '||_VAR_VAR' =>    array('rvalue' => '|| a b', 'args' => array('a','b')),
+         '^_VAR_VAR' =>     array('rvalue' => '^ a b', 'args' => array('a','b')),
+         '~_VAR' =>         array('rvalue' => '~ a', 'args' => array('a')),
+         '.._VAR' =>        array('rvalue' => '.. a', 'args' => array('a')),
+         '.._VAR_VAR' =>    array('rvalue' => '.. a b', 'args' => array('a', 'b')),
+         '.._VAR_VAR_VAR' => array('rvalue' => '.. a b c', 'args'=> array('a', 'b', 'c')),
         );
     }
 
@@ -172,6 +175,15 @@ class Interpreter {
                 case "~":
                        $output .= $this->b_complement($r[1]);
                        break;
+                case "..":
+                       if(isset($r[3])) { 
+                           $output .= $this->createRange($r[1], $r[2], $r[3]);
+                       } else if(isset($r[2])) {
+                           $output .= $this->createRange($r[1], $r[2], 1);
+                       } else {
+                           $output .= $this->createRange(0 ,$r[1], 1);
+                       }
+                       break;
                 default:
                        DEBUG::log("Recursing :".htmlentities($rvalue));
                        $output .= $this->execute($rvalue);
@@ -180,6 +192,7 @@ class Interpreter {
         }
         else if(strpos($code, "(") != False) {
             $newcode = $code;
+            
             while (strpos($newcode, "(") != False )
             {
                 DEBUG::log("Processing Complex : $safe_code");
@@ -189,12 +202,24 @@ class Interpreter {
             if(sizeof(explode(" ", $newcode)) > 1) {
                 $output .= $this->execute($newcode);
             }
+        } 
+        else if(strpos($code, '[') != False) {
+            list($lvalue, $rvalue) = explode('[', $code);
+            $lvalue = trim($lvalue);
+            $rvalue = substr($rvalue, 0, strpos($rvalue, ']'));
+            $listVal = explode(",", $rvalue);
+
+            DEBUG::dump("LISTVAL", $listVal);
+
+            for($i = 0; $i < sizeof($listVal); $i++) {
+                $newCode = $lvalue." ".trim($listVal[$i]);
+                $output .= $this->execute($newCode)."\n";
+            }
         } else {
-            
             if( preg_match("/^[0-9]+$/",trim($safe_code)) != False ) {
                 $output .= $safe_code;
             } else {
-                $output .= "<span class='error'>No match found for symbol : '$safe_code'</span>";
+                $output .= "<span class='error'>Error: No match found for symbol `$safe_code'</span>";
             }
         }
 
@@ -238,6 +263,27 @@ class Interpreter {
         return array( $output, $startParen, $endParen);
     }
 
+    private function createRange($rangeStart , $rangeEnd, $step) {
+        if($step == 0) { 
+            DEBUG::log("<span class='error'>.. $rangeEnd $rangeEnd $step (Warning): range operator was passed ZERO as `step' value</span>");
+            return $rangeStart;
+        }
+
+        $output = "[";
+        
+        for($i = $rangeStart; $step >= 0 ? $i <= $rangeEnd : $i >= $rangeEnd; $i += $step) {
+            $output .= "".$i.", "; 
+        }
+
+        if($output == "[") {
+            $output = "";
+        } else {
+            $output = substr($output, 0, strlen($output) - 2). "]";
+        }
+
+        return $output;
+    }
+
     private function f_and ($num1, $num2) {
         return (intval($num1) && intval($num2)) ? 1 : 0;
     } 
@@ -275,7 +321,7 @@ class Interpreter {
     }
 
     private function divide($num1, $num2) {
-        if($num2 == 0) return "<span class='error'>Division by ZERO<span>\n";
+        if($num2 == 0) return "<span class='error'>Error: Division by ZERO `/ $num1 $num2'<span>\n";
         return floatval($num1) / floatval($num2);
     }
 }
