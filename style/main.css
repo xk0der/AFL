@@ -1,0 +1,76 @@
+body {
+    margin: 5px;
+}
+
+#title {
+    -moz-border-radius: 5px;
+    padding: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    background: #0683A8;
+    margin: 3px;
+    text-align: center;
+}
+
+#program  {
+    background: #E9F6AE;
+    color: #00148A;
+    font-weight: bold;
+}
+
+#outputContainer {
+    border: 1px dotted #dddddd;
+    -moz-border-radius: 3px; 
+    height: 50%;
+    overflow-y: scroll;
+    overflow-x: hide;
+    background: #000000;
+    color: #ffffff;
+}
+
+#mainContainer {
+    float: left;
+}
+
+#debug {
+    border: 1px dotted #dddddd;
+    -moz-border-radius: 3px;
+    height: 95%;
+    overflow-y: scroll;
+    overflow-x: hide;
+}
+
+.debugMsg:nth-child(odd) {
+    background: #cccccc;
+}
+
+.debugMsg:nth-child(even) {
+    background: #eeeeee;
+}
+
+#output_head {
+    color: #000088;
+    background: #dddddd;
+    padding: 3px;
+    -moz-border-radius: 5px;
+}
+
+#debug_head {
+    color: #ffffff;
+    background: #257264;
+    padding: 3px;
+    -moz-border-radius: 5px;
+}
+
+#code_head {
+    color: #ffffff;
+    background: #724A25;
+    padding: 3px;
+    -moz-border-radius: 5px;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+}
