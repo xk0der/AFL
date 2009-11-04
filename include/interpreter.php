@@ -89,12 +89,23 @@ class Interpreter {
         return $sig; 
     }
 
-    private function createRawSignature ($lvalue) {
+    private function createRawSignature ($lvalue, $index) {
         $l = explode(" ", $lvalue);
         $sig = $l[Interpreter::F_NAME];
 
+        if(is_bool($index) && $index == false) {
+            $index = sizeof($l);
+        }
+
         for($i = 1 ; $i < sizeof($l); $i++ ) {
-            if($l[$i] != "") $sig .= "_VAR"; 
+            if($l[$i] != "") {
+                if($i <= $index)
+                {
+                    $sig .= "_VAR"; 
+                } else {
+                    $sig .= "_".$l[$i];
+                }
+            }
         }
         return $sig; 
     }
@@ -102,124 +113,148 @@ class Interpreter {
     private function execute ($code) {
         $output = "";
         $sig = $this->createSignature($code); 
-        $raw_sig = $this->createRawSignature($code);
 
         $safe_code = htmlentities($code);
         $safe_sig = htmlentities($sig);
-        $safe_raw_sig = htmlentities($raw_sig);
+        $raw_sig = "";
+        $safe_raw_sig = "";
+        $foundRawSig = false;
         
-        DEBUG::log("Executing : Code = ".$safe_code." | Signature = ".$safe_sig." | Raw_signature = ".$safe_raw_sig);
+        DEBUG::log("Executing : Code = ".$safe_code." | Signature = ".$safe_sig);
 
         if(isset($this->symbolTable[$sig]))
         {
             DEBUG::log("Matched terminating signature : $safe_sig | rvalue = ".htmlentities($this->symbolTable[$sig]['rvalue']));
             $rvalue = $this->symbolTable[$sig]['rvalue'];
-            $raw_sig = $this->createRawSignature($rvalue);
+            $raw_sig = $this->createRawSignature($rvalue, false);
         
             if(isset($this->symbolTable[$raw_sig])) {
                 $output = $this->execute($rvalue);
             } else {
                 $output = $rvalue; 
             }
+            $foundRawSig = true;
 
+            $rvalue = $output;
+            while(strpos($rvalue,"(") != False) $rvalue = $this->processComplex($rvalue);
+            $output = $rvalue;
+                
+            if(sizeof(explode(" ", $output)) > 1) {
+                $output = $this->execute($output);
+            }
         }
-        else if(isset($this->symbolTable[$raw_sig]))
-        {
-            DEBUG::log("Matched raw signature : ".$safe_raw_sig);
+       
+        for($k = 0; !$foundRawSig && $k < sizeof(explode(" ", $code)); $k++)  {
+            $raw_sig = $this->createRawSignature($code, $k);
+            $safe_raw_sig = htmlentities($raw_sig);
             
-            $args = $this->symbolTable[$raw_sig]['args'];
-            $rvalue = $this->symbolTable[$raw_sig]['rvalue'];
-            $l = explode(" ", $code);
-            
-            for($i = 0; $i < sizeof($args); $i++)
+            DEBUG::log("Executing : Code = ".$safe_code." | raw signature : ".$safe_raw_sig);
+
+            if(isset($this->symbolTable[$raw_sig]))
             {
-                if(isset($l[$i + 1])) {
-                    $rvalue = str_replace($args[$i], $l[$i + 1], $rvalue);
-                } else {
-                    $output .= "Error $code - Argument count mismatch\n";
+                $foundRawSig = true;
+                DEBUG::log("Matched raw signature : ".$safe_raw_sig);
+                
+                $args = $this->symbolTable[$raw_sig]['args'];
+                $rvalue = $this->symbolTable[$raw_sig]['rvalue'];
+                $l = explode(" ", $code);
+                
+                for($i = 0; $i < sizeof($args); $i++)
+                {
+                    if(isset($l[$i + 1])) {
+                        $rvalue = str_replace($args[$i], $l[$i + 1], $rvalue);
+                    } else {
+                        $output .= "Error $code - Argument count mismatch\n";
+                    }
+                }
+
+                while(strpos($rvalue,"(") != False) $rvalue = $this->processComplex($rvalue);
+
+                $r = explode(" ", $rvalue);
+                DEBUG::dump("Arguments", $r);
+                switch($r[0]) {
+                    case "+":
+                           $output .= $this->add($r[1], $r[2]); 
+                        break;
+                    case "-":
+                           $output .= $this->substract($r[1], $r[2]); 
+                        break;
+                    case "*";
+                           $output .= $this->multiply($r[1], $r[2]); 
+                        break;
+                    case "/":
+                           $output .= $this->divide($r[1], $r[2]);
+                           break;
+                    case "&&":
+                           $output .= $this->f_and($r[1], $r[2]);
+                           break;
+                    case "||":
+                           $output .= $this->f_or($r[1], $r[2]);
+                           break;
+                    case "&":
+                           $output .= $this->b_and($r[1], $r[2]);
+                           break;
+                    case "|":
+                           $output .= $this->b_or($r[1], $r[2]);
+                           break;
+                    case "^":
+                           $output .= $this->b_xor($r[1], $r[2]);
+                           break;
+                    case "~":
+                           $output .= $this->b_complement($r[1]);
+                           break;
+                    case "..":
+                           if(isset($r[3])) { 
+                               $output .= $this->createRange($r[1], $r[2], $r[3]);
+                           } else if(isset($r[2])) {
+                               $output .= $this->createRange($r[1], $r[2], 1);
+                           } else {
+                               $output .= $this->createRange(0 ,$r[1], 1);
+                           }
+                           break;
+                    default:
+                           DEBUG::log("Recursing :".htmlentities($rvalue));
+                           $output .= $this->execute($rvalue);
+                        break;
                 }
             }
 
-            while(strpos($rvalue,"(") != False) $rvalue = $this->processComplex($rvalue);
-
-            $r = explode(" ", $rvalue);
-            DEBUG::dump("Arguments", $r);
-            switch($r[0]) {
-                case "+":
-                       $output .= $this->add($r[1], $r[2]); 
-                    break;
-                case "-":
-                       $output .= $this->substract($r[1], $r[2]); 
-                    break;
-                case "*";
-                       $output .= $this->multiply($r[1], $r[2]); 
-                    break;
-                case "/":
-                       $output .= $this->divide($r[1], $r[2]);
-                       break;
-                case "&&":
-                       $output .= $this->f_and($r[1], $r[2]);
-                       break;
-                case "||":
-                       $output .= $this->f_or($r[1], $r[2]);
-                       break;
-                case "&":
-                       $output .= $this->b_and($r[1], $r[2]);
-                       break;
-                case "|":
-                       $output .= $this->b_or($r[1], $r[2]);
-                       break;
-                case "^":
-                       $output .= $this->b_xor($r[1], $r[2]);
-                       break;
-                case "~":
-                       $output .= $this->b_complement($r[1]);
-                       break;
-                case "..":
-                       if(isset($r[3])) { 
-                           $output .= $this->createRange($r[1], $r[2], $r[3]);
-                       } else if(isset($r[2])) {
-                           $output .= $this->createRange($r[1], $r[2], 1);
-                       } else {
-                           $output .= $this->createRange(0 ,$r[1], 1);
-                       }
-                       break;
-                default:
-                       DEBUG::log("Recursing :".htmlentities($rvalue));
-                       $output .= $this->execute($rvalue);
-                    break;
-            }
+            if($foundRawSig) break;
         }
-        else if(strpos($code, "(") != False) {
-            $newcode = $code;
-            
-            while (strpos($newcode, "(") != False )
-            {
-                DEBUG::log("Processing Complex : $safe_code");
-                $newcode = $this->processComplex($newcode);
-            }
-            
-            if(sizeof(explode(" ", $newcode)) > 1) {
-                $output .= $this->execute($newcode);
-            }
-        } 
-        else if(strpos($code, '[') != False) {
-            list($lvalue, $rvalue) = explode('[', $code);
-            $lvalue = trim($lvalue);
-            $rvalue = substr($rvalue, 0, strpos($rvalue, ']'));
-            $listVal = explode(",", $rvalue);
 
-            DEBUG::dump("LISTVAL", $listVal);
+        if(!$foundRawSig)
+        {
+            if(strpos($code, "(") != False) {
+                $newcode = $code;
+                
+                while (strpos($newcode, "(") != False )
+                {
+                    DEBUG::log("Processing Complex : $safe_code");
+                    $newcode = $this->processComplex($newcode);
+                }
+                
+                if(sizeof(explode(" ", $newcode)) > 1) {
+                    $output .= $this->execute($newcode);
+                }
+            } 
+            else if(strpos($code, '[') != False) {
+                list($lvalue, $rvalue) = explode('[', $code);
+                $lvalue = trim($lvalue);
+                $rvalue = substr($rvalue, 0, strpos($rvalue, ']'));
+                $listVal = explode(",", $rvalue);
 
-            for($i = 0; $i < sizeof($listVal); $i++) {
-                $newCode = $lvalue." ".trim($listVal[$i]);
-                $output .= $this->execute($newCode)."\n";
-            }
-        } else {
-            if( preg_match("/^[0-9]+$/",trim($safe_code)) != False ) {
-                $output .= $safe_code;
+                DEBUG::dump("LISTVAL", $listVal);
+
+                for($i = 0; $i < sizeof($listVal); $i++) {
+                    $newCode = $lvalue." ".trim($listVal[$i]);
+                    $output .= $this->execute($newCode)."\n";
+                }
             } else {
-                $output .= "<span class='error'>Error: No match found for symbol `$safe_code'</span>";
+                if( preg_match("/^[0-9]+$/",trim($code)) != False ) {
+                    $output .= $safe_code;
+                } else {
+                    $output .= "<span class='error'>Error: No match found for symbol `$safe_code'</span>";
+                }
             }
         }
 
@@ -235,7 +270,7 @@ class Interpreter {
         $flag = false;
         $output = $this->execute($output);
 
-        $raw_sig = $this->createRawSignature($output);
+        $raw_sig = $this->createRawSignature($output, false);
         if(isset($this->symbolTable[$raw_sig])) {
             $newcode = substr($code, 0, $openParen)."(".$output.")".substr($code, $closeParen+ 1, strlen($code));
         } else {
