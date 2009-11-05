@@ -12,6 +12,7 @@ class Interpreter {
          '+_VAR_VAR' =>     array('rvalue' => '+ a b', 'args' => array('a','b')),
          '*_VAR_VAR' =>     array('rvalue' => '* a b', 'args' => array('a','b')),
          '/_VAR_VAR' =>     array('rvalue' => '/ a b', 'args' => array('a','b')),
+         '%_VAR_VAR' =>     array('rvalue' => '% a b', 'args' => array('a','b')),
          '-_VAR_VAR' =>     array('rvalue' => '- a b', 'args' => array('a','b')),
          '&_VAR_VAR' =>     array('rvalue' => '& a b', 'args' => array('a','b')),
          '&&_VAR_VAR' =>    array('rvalue' => '&& a b', 'args' => array('a','b')),
@@ -184,6 +185,9 @@ class Interpreter {
                         break;
                     case "/":
                            $output .= $this->divide($r[1], $r[2]);
+                           break;
+                    case "%":
+                           $output .= $this->modulus($r[1], $r[2]);
                            break;
                     case "&&":
                            $output .= $this->f_and($r[1], $r[2]);
@@ -359,4 +363,9 @@ class Interpreter {
         if($num2 == 0) return "<span class='error'>Error: Division by ZERO `/ $num1 $num2'<span>\n";
         return floatval($num1) / floatval($num2);
     }
+    private function modulus($num1, $num2) {
+        if($num2 == 0) return "<span class='error'>Error: Division by ZERO `% $num1 $num2'<span>\n";
+        return floatval($num1) % floatval($num2);
+    }
+
 }
