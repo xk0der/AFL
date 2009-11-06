@@ -31,17 +31,17 @@
             <input type="submit" value="Execute" title="Passes the AFL code above to the server for execution.">
         </div>
     </form>
+    <div id="output_head">Output
+        <img src="image/question.png" align="top" title="Output of AFL code execution gets displayed below" >
+    </div>
     <div id="outputContainer">
-        <div id="output_head">Output
-            <img src="image/question.png" align="top" title="Output of AFL code execution gets displayed below" >
-        </div>
         <pre><?= AFL::$output ?></pre>
     </div>
 </div>
-<div id="debug">
 <div id="debug_head">Internal Trace Dump
     <img src="image/question.png" align="top" title="Internal PHP state dumps for AFL." >
 </div>
+<div id="debug">
 <pre>
 <?= AFL::$debugLog ?>
 </pre>

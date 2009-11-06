@@ -12,6 +12,7 @@ class Interpreter {
          '+_VAR_VAR' =>     array('rvalue' => '+ a b', 'args' => array('a','b')),
          '*_VAR_VAR' =>     array('rvalue' => '* a b', 'args' => array('a','b')),
          '/_VAR_VAR' =>     array('rvalue' => '/ a b', 'args' => array('a','b')),
+         '\_VAR_VAR' =>     array('rvalue' => '\ a b', 'args' => array('a','b')),
          '%_VAR_VAR' =>     array('rvalue' => '% a b', 'args' => array('a','b')),
          '-_VAR_VAR' =>     array('rvalue' => '- a b', 'args' => array('a','b')),
          '&_VAR_VAR' =>     array('rvalue' => '& a b', 'args' => array('a','b')),
@@ -79,6 +80,10 @@ class Interpreter {
     private function createSignature ($lvalue) {
         $l = explode(" ", $lvalue);
         $sig = $l[Interpreter::F_NAME];
+        
+        if(substr($l[0], 0, 1) == "[" || (isset($l[1]) && substr($l[1], 0, 1) == "[")  ) {
+            return false;
+        }
 
         for($i = 1 ; $i < sizeof($l); $i++ ) {
             if(is_numeric($l[$i])) {
@@ -96,6 +101,10 @@ class Interpreter {
 
         if(is_bool($index) && $index == false) {
             $index = sizeof($l);
+        }
+
+        if(substr($l[0], 0, 1) == "[" || (isset($l[1]) && substr($l[1], 0, 1) == "[")  ) {
+            return false;
         }
 
         for($i = 1 ; $i < sizeof($l); $i++ ) {
@@ -121,9 +130,9 @@ class Interpreter {
         $safe_raw_sig = "";
         $foundRawSig = false;
         
-        DEBUG::log("Executing : Code = ".$safe_code." | Signature = ".$safe_sig);
+        if($sig) DEBUG::log("Executing : Code = ".$safe_code." | Signature = ".$safe_sig);
 
-        if(isset($this->symbolTable[$sig]))
+        if($sig && isset($this->symbolTable[$sig]))
         {
             DEBUG::log("Matched terminating signature : $safe_sig | rvalue = ".htmlentities($this->symbolTable[$sig]['rvalue']));
             $rvalue = $this->symbolTable[$sig]['rvalue'];
@@ -137,7 +146,7 @@ class Interpreter {
             $foundRawSig = true;
 
             $rvalue = $output;
-            while(strpos($rvalue,"(") != False) $rvalue = $this->processComplex($rvalue);
+            while(!(strpos($rvalue,"(") === False)) $rvalue = $this->processComplex($rvalue);
             $output = $rvalue;
                 
             if(sizeof(explode(" ", $output)) > 1) {
@@ -147,6 +156,11 @@ class Interpreter {
        
         for($k = 0; !$foundRawSig && $k < sizeof(explode(" ", $code)); $k++)  {
             $raw_sig = $this->createRawSignature($code, $k);
+            
+            if($raw_sig === False) {
+                break;
+            }
+            
             $safe_raw_sig = htmlentities($raw_sig);
             
             DEBUG::log("Executing : Code = ".$safe_code." | raw signature : ".$safe_raw_sig);
@@ -159,7 +173,7 @@ class Interpreter {
                 $args = $this->symbolTable[$raw_sig]['args'];
                 $rvalue = $this->symbolTable[$raw_sig]['rvalue'];
                 $l = explode(" ", $code);
-                
+
                 for($i = 0; $i < sizeof($args); $i++)
                 {
                     if(isset($l[$i + 1])) {
@@ -169,7 +183,8 @@ class Interpreter {
                     }
                 }
 
-                while(strpos($rvalue,"(") != False) $rvalue = $this->processComplex($rvalue);
+                while(!(strpos($rvalue,"(") === False)) $rvalue = $this->processComplex($rvalue);
+                if(!(strpos($rvalue,"[") === False)) {$output .= $this->execute($rvalue); break;}
 
                 $r = explode(" ", $rvalue);
                 DEBUG::dump("Arguments", $r);
@@ -185,6 +200,9 @@ class Interpreter {
                         break;
                     case "/":
                            $output .= $this->divide($r[1], $r[2]);
+                           break;
+                    case "\\":
+                           $output .= $this->divide_int($r[1], $r[2]);
                            break;
                     case "%":
                            $output .= $this->modulus($r[1], $r[2]);
@@ -228,7 +246,7 @@ class Interpreter {
 
         if(!$foundRawSig)
         {
-            if(strpos($code, "(") != False) {
+            if(!(strpos($code, "(") === False)) {
                 $newcode = $code;
                 
                 while (strpos($newcode, "(") != False )
@@ -241,7 +259,7 @@ class Interpreter {
                     $output .= $this->execute($newcode);
                 }
             } 
-            else if(strpos($code, '[') != False) {
+            else if(!(strpos($code, '[') === False)) {
                 list($lvalue, $rvalue) = explode('[', $code);
                 $lvalue = trim($lvalue);
                 $rvalue = substr($rvalue, 0, strpos($rvalue, ']'));
@@ -250,7 +268,7 @@ class Interpreter {
                 DEBUG::dump("LISTVAL", $listVal);
 
                 for($i = 0; $i < sizeof($listVal); $i++) {
-                    $newCode = $lvalue." ".trim($listVal[$i]);
+                    $newCode = trim($lvalue." ".trim($listVal[$i]));
                     $output .= $this->execute($newCode)."\n";
                 }
             } else {
@@ -360,11 +378,17 @@ class Interpreter {
     }
 
     private function divide($num1, $num2) {
-        if($num2 == 0) return "<span class='error'>Error: Division by ZERO `/ $num1 $num2'<span>\n";
+        if($num2 == 0) return "<span class='error'>Error: Division by ZERO `/ $num1 $num2'</span>\n";
         return floatval($num1) / floatval($num2);
     }
+    
+    private function divide_int($num1, $num2) {
+        if($num2 == 0) return "<span class='error'>Error: Division by ZERO `/ $num1 $num2'</span>\n";
+        return (int)(intval($num1) / intval($num2));
+    }
+
     private function modulus($num1, $num2) {
-        if($num2 == 0) return "<span class='error'>Error: Division by ZERO `% $num1 $num2'<span>\n";
+        if($num2 == 0) return "<span class='error'>Error: Division by ZERO `% $num1 $num2'</span>\n";
         return floatval($num1) % floatval($num2);
     }
 
