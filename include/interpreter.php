@@ -344,7 +344,13 @@ class Interpreter {
         $prefix = substr($code, 0, $listAT);
 
         $_t = substr($code, $listAT + 2, strlen($code));
-        list($initVal, $i_nextVal, $i_condition) = explode(':', $_t);
+
+        $i_nextValList = false;
+        if(sizeof(explode(':', $_t)) == 4) {
+            list($initVal, $i_nextValList, $i_nextVal, $i_condition) = explode(':', $_t);
+        } else {
+            list($initVal, $i_nextVal, $i_condition) = explode(':', $_t);
+        }
         
         $initVal = str_replace('[', '', $initVal);
         $initVal = str_replace(']', '', $initVal);
@@ -362,14 +368,19 @@ class Interpreter {
         $initVal = $_t;
 
         $b_condition = True;
-        
+       
+        if(!($i_nextValList === False)) $i_nextValList = trim($i_nextValList);
         $i_nextVal = trim($i_nextVal);
         $i_condition = trim($i_condition);
 
+        DEBUG::dump("next val list", $i_nextValList);
+        DEBUG::dump("next val ", $i_nextVal);
+        DEBUG::dump("condition ", $i_condition);
+
         
         $nextVal = "";
-        for( $i = strpos($code, '#') + 1; substr($code, $i, 1) != " " && $i < strlen($code); $i++) {
-            $nextVal .= substr($code, $i, 1);
+        for( $i = strpos($i_nextVal, '#') + 1; substr($i_nextVal, $i, 1) != " " && $i < strlen($i_nextVal); $i++) {
+            $nextVal .= substr($i_nextVal, $i, 1);
         }
         
         $i_nextVal = preg_replace('/\#[0-9]+/','#', $i_nextVal);
@@ -377,15 +388,25 @@ class Interpreter {
         $comma = "";
         if(strlen($output) > 0) $comma = ", ";
         while($b_condition) {
+
+            if(!($i_nextValList === False)) {
+                DEBUG::log("NEXT VAL ".$nextVal);
+                $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$i_nextValList." "));
+                DEBUG::log(" NEXT CODE ".$nextCode);
+                $nextListVal = $this->execute($nextCode);
+            }
+
             $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$i_nextVal." "));
             $nextVal = $this->execute($nextCode);
             
-            
             $condition = trim(str_replace(" # ", " ".$nextVal." ", " ".$i_condition." "));
             $b_condition = intval($this->execute($condition)) == 0 ? False : True;
+
+            $val = $nextVal;
+            if(!($i_nextValList === False)) $val = $nextListVal;
             
-            if($appendAtEnd) $output .= $comma.$nextVal;
-            else $output = $nextVal.$comma.$output;
+            if($appendAtEnd) $output .= $comma.$val;
+            else $output = $val.$comma.$output;
             $comma = ", ";
         }
 
