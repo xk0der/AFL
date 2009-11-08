@@ -24,6 +24,12 @@ class Interpreter {
          '.._VAR' =>        array('rvalue' => '.. a', 'args' => array('a')),
          '.._VAR_VAR' =>    array('rvalue' => '.. a b', 'args' => array('a', 'b')),
          '.._VAR_VAR_VAR' => array('rvalue' => '.. a b c', 'args'=> array('a', 'b', 'c')),
+         '<<_VAR_VAR' =>    array('rvalue' => '<< a b', 'args' => array('a', 'b')),
+         '>>_VAR_VAR' =>    array('rvalue' => '>> a b', 'args' => array('a', 'b')),
+         '<_VAR_VAR' => array('rvalue' => '< a b', 'args' => array('a', 'b')),
+         '>_VAR_VAR' => array('rvalue' => '> a b', 'args' => array('a', 'b')),
+         '<>_VAR_VAR' => array('rvalue' => '<> a b', 'args' => array('a', 'b')),
+         '!_VAR' => array('rvalue' => '! a', 'args' => array('a')),
         );
     }
 
@@ -85,6 +91,8 @@ class Interpreter {
             return false;
         }
 
+        if(!(strpos($lvalue, ('(')) === False )) return false;
+
         for($i = 1 ; $i < sizeof($l); $i++ ) {
             if(is_numeric($l[$i])) {
                 $sig .= "_" . $l[$i];
@@ -99,13 +107,15 @@ class Interpreter {
         $l = explode(" ", $lvalue);
         $sig = $l[Interpreter::F_NAME];
 
-        if(is_bool($index) && $index == false) {
+        if(is_bool($index) && $index == False) {
             $index = sizeof($l);
         }
 
         if(substr($l[0], 0, 1) == "[" || (isset($l[1]) && substr($l[1], 0, 1) == "[")  ) {
-            return false;
+            return False;
         }
+        
+        if(!(strpos($lvalue, ('(')) === False )) return False;
 
         for($i = 1 ; $i < sizeof($l); $i++ ) {
             if($l[$i] != "") {
@@ -129,7 +139,12 @@ class Interpreter {
         $raw_sig = "";
         $safe_raw_sig = "";
         $foundRawSig = false;
-        
+
+        if(!(strpos($code, "@@" ) === False)) {
+            $code = $this->expandLists($code);
+            DEBUG::log("Expand list new code :".$code);
+        }
+
         if($sig) DEBUG::log("Executing : Code = ".$safe_code." | Signature = ".$safe_sig);
 
         if($sig && isset($this->symbolTable[$sig]))
@@ -137,7 +152,8 @@ class Interpreter {
             DEBUG::log("Matched terminating signature : $safe_sig | rvalue = ".htmlentities($this->symbolTable[$sig]['rvalue']));
             $rvalue = $this->symbolTable[$sig]['rvalue'];
             $raw_sig = $this->createRawSignature($rvalue, false);
-        
+       
+
             if(isset($this->symbolTable[$raw_sig])) {
                 $output = $this->execute($rvalue);
             } else {
@@ -154,12 +170,13 @@ class Interpreter {
             }
         }
        
+       
         for($k = 0; !$foundRawSig && $k < sizeof(explode(" ", $code)); $k++)  {
             $raw_sig = $this->createRawSignature($code, $k);
-            
-            if($raw_sig === False) {
-                break;
-            }
+
+            if($raw_sig === False) break;
+        
+            if(trim($raw_sig) == "") return "";
             
             $safe_raw_sig = htmlentities($raw_sig);
             
@@ -169,6 +186,7 @@ class Interpreter {
             {
                 $foundRawSig = true;
                 DEBUG::log("Matched raw signature : ".$safe_raw_sig);
+            
                 
                 $args = $this->symbolTable[$raw_sig]['args'];
                 $rvalue = $this->symbolTable[$raw_sig]['rvalue'];
@@ -177,7 +195,7 @@ class Interpreter {
                 for($i = 0; $i < sizeof($args); $i++)
                 {
                     if(isset($l[$i + 1])) {
-                        $rvalue = str_replace($args[$i], $l[$i + 1], $rvalue);
+                        $rvalue = trim(str_replace(" ".$args[$i]." ", " ".$l[$i + 1]." ", " ".$rvalue." "));
                     } else {
                         $output .= "Error $code - Argument count mismatch\n";
                     }
@@ -225,6 +243,24 @@ class Interpreter {
                     case "~":
                            $output .= $this->b_complement($r[1]);
                            break;
+                    case "<<":
+                           $output .= $this->leftShift($r[1], $r[2]);
+                           break;
+                    case ">>":
+                           $output .= $this->rightShift($r[1], $r[2]);
+                           break;
+                    case "<":
+                           $output .= $this->f_less($r[1], $r[2]);
+                           break;
+                    case ">":
+                           $output .= $this->f_greater($r[1], $r[2]);
+                           break;
+                    case "<>":
+                           $output .= $this->f_notEqual($r[1], $r[2]);
+                           break;
+                    case "!":
+                           $output .= $this->f_not($r[1]);
+                           break;
                     case "..":
                            if(isset($r[3])) { 
                                $output .= $this->createRange($r[1], $r[2], $r[3]);
@@ -243,6 +279,7 @@ class Interpreter {
 
             if($foundRawSig) break;
         }
+        
 
         if(!$foundRawSig)
         {
@@ -265,11 +302,13 @@ class Interpreter {
                 $rvalue = substr($rvalue, 0, strpos($rvalue, ']'));
                 $listVal = explode(",", $rvalue);
 
-                DEBUG::dump("LISTVAL", $listVal);
-
-                for($i = 0; $i < sizeof($listVal); $i++) {
-                    $newCode = trim($lvalue." ".trim($listVal[$i]));
-                    $output .= $this->execute($newCode)."\n";
+                if(strlen($lvalue) != 0) {
+                    for($i = 0; $i < sizeof($listVal); $i++) {
+                        $newCode = trim($lvalue." ".trim($listVal[$i]));
+                        $output .= $this->execute($newCode)."\n";
+                    }
+                } else {
+                    $output .= "[".$rvalue."]";
                 }
             } else {
                 if( preg_match("/^[0-9]+$/",trim($code)) != False ) {
@@ -283,6 +322,53 @@ class Interpreter {
         Debug::log("Output : ".$output);
 
         return $output;
+    }
+
+    private function expandLists($code) {
+        $listAT = strpos($code, '@@');
+        $prefix = substr($code, 0, $listAT);
+
+        $_t = substr($code, $listAT + 2, strlen($code));
+        list($initVal, $i_nextVal, $i_condition) = explode(':', $_t);
+        
+        $initVal = str_replace('[', '', $initVal);
+        $initVal = str_replace(']', '', $initVal);
+
+        $initVal = explode(",", $initVal);
+        $_t = array();
+        
+        for($i = 0; $i < sizeof($initVal); $i++)
+        {
+            if(trim($initVal[$i]) != "") {
+                $_t[sizeof($initVal)] = $initVal[$i]; 
+            }
+        }
+
+        $initVal = $_t;
+
+        $b_condition = True;
+        
+        $i_nextVal = trim($i_nextVal);
+        $i_condition = trim($i_condition);
+
+        
+        $nextVal = "";
+        for( $i = strpos($code, '#') + 1; substr($code, $i, 1) != " " && $i < strlen($code); $i++) {
+            $nextVal .= substr($code, $i, 1);
+        }
+        
+        $i_nextVal = preg_replace('/\#[0-9]+/','#', $i_nextVal);
+        while($b_condition) {
+            $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$i_nextVal." "));
+            $nextVal = $this->execute($nextCode);
+            $initVal[sizeof($initVal)] = trim($nextVal);
+            $condition = trim(str_replace(" # ", " ".$nextVal." ", " ".$i_condition." "));
+            $b_condition = intval($this->execute($condition)) == 0 ? False : True;
+        }
+
+        DEBUG::dump("Expanded List", $initVal);
+
+        return $prefix." [ ".implode(",", $initVal)." ]";
     }
 
     private function processComplex($code) {
@@ -340,6 +426,22 @@ class Interpreter {
 
         return $output;
     }
+    
+    private function f_less ($num1, $num2) {
+        return ($num1) < ($num2) ? 1 : 0;
+    } 
+    
+    private function f_greater ($num1, $num2) {
+        return ($num1) > ($num2) ? 1 : 0;
+    } 
+    
+    private function f_notEqual ($num1, $num2) {
+        return ($num1) != ($num2) ? 1 : 0;
+    }
+    
+    private function f_not($num1) {
+        return (intval($num1) == 0) ? 1 : 0;
+    }
 
     private function f_and ($num1, $num2) {
         return (intval($num1) && intval($num2)) ? 1 : 0;
@@ -359,6 +461,14 @@ class Interpreter {
     
     private function b_xor ($num1, $num2) {
         return intval($num1) ^ intval($num2);
+    }
+    
+    private function leftShift ($num1, $num2) {
+        return intval($num1) << intval($num2);
+    }
+    
+    private function rightShift ($num1, $num2) {
+        return intval($num1) >> intval($num2);
     }
 
     private function b_complement($num1) {
