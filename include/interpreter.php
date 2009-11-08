@@ -140,7 +140,10 @@ class Interpreter {
         $safe_raw_sig = "";
         $foundRawSig = false;
 
-        if(!(strpos($code, "@@" ) === False)) {
+        if(     !(strpos($code, "@^" ) === False) 
+          ||    !(strpos($code, "@$") === False)
+          ||    !(strpos($code, "@@") === False)
+          ) {
             $code = $this->expandLists($code);
             DEBUG::log("Expand list new code :".$code);
         }
@@ -325,7 +328,17 @@ class Interpreter {
     }
 
     private function expandLists($code) {
-        $listAT = strpos($code, '@@');
+        $appendAtEnd = True; // AppendAt End
+        $listCode = '@@';
+
+        if(!(strpos($code, '@$') === False)) $listCode = '@$';
+        else if(!(strpos($code, '@^')=== False)) {$listCode = '@^'; $appendAtEnd = False;}
+
+        DEBUG::dump("listCode", $listCode);
+        DEBUG::dump("appendAtEnd", $appendAtEnd);
+
+
+        $listAT = strpos($code, $listCode);
         $prefix = substr($code, 0, $listAT);
 
         $_t = substr($code, $listAT + 2, strlen($code));
@@ -358,17 +371,26 @@ class Interpreter {
         }
         
         $i_nextVal = preg_replace('/\#[0-9]+/','#', $i_nextVal);
+        $output = "";
+        $comma = "";
         while($b_condition) {
             $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$i_nextVal." "));
             $nextVal = $this->execute($nextCode);
-            $initVal[sizeof($initVal)] = trim($nextVal);
+            
+            
             $condition = trim(str_replace(" # ", " ".$nextVal." ", " ".$i_condition." "));
             $b_condition = intval($this->execute($condition)) == 0 ? False : True;
+            
+            if($appendAtEnd) $output .= $comma.$nextVal;
+            else $output = $nextVal.$comma.$output;
+            $comma = ", ";
         }
+
+        $initVal = explode(',', $output);
 
         DEBUG::dump("Expanded List", $initVal);
 
-        return $prefix." [ ".implode(",", $initVal)." ]";
+        return $prefix." [ ".$output." ]";
     }
 
     private function processComplex($code) {
