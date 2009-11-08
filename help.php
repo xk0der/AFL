@@ -109,33 +109,33 @@
 
         <h3><a name="math"></a>Math Functions</h3>
 
-        <p>
             <pre>+ VAR VAR</pre>
+        <p>
             Sum of two numbers.
         </p>
 
-        <p>
             <pre>- VAR VAR</pre>
+        <p>
             Subtraction of two numbers.
         </p>
 
-        <p>
             <pre>/ VAR VAR</pre>
+        <p>
             Division of two number - result is float.
         </p>
 
-        <p>
             <pre>\ VAR VAR</pre>
+        <p>
             Integer Division.
         </p>
 
-        <p>
             <pre>% VAR VAR</pre>
+        <p>
             Modulus of two numbers.
         </p>
 
-        <p>
             <pre>* VAR VAR</pre>
+        <p>
             Product of two numbers.
         </p>
 
@@ -152,18 +152,18 @@
     <div>
         <h3><a name="bool"></a>Boolean Functions</h3>
 
-        <p>
             <pre>&amp;&amp; VAR VAR</pre>
+        <p>
             Boolean AND
         </p>
 
-        <p>
             <pre>|| VAR VAR</pre>
+        <p>
             Boolean OR.
         </p>
 
-        <p>
             <pre>! VAR</pre>
+        <p>
             Boolean NOT.
         </p>
     </div>
@@ -172,23 +172,23 @@
 
         <h3><a name="bitwise"></a>Bitwise Functions</h3>
 
-        <p>
             <pre>&amp; VAR VAR</pre>
+        <p>
             Bitwise AND.
         </p>
 
-        <p>
             <pre>| VAR VAR</pre>
+        <p>
             Bitwise OR.
         </p>
 
-        <p>
             <pre>~ VAR</pre>
+        <p>
             Complement.
         </p>
         
-        <p>
             <pre>&lt;&lt; VAR VAR</pre>
+        <p>
             Left shift
         </p>
         
@@ -201,33 +201,33 @@
     <div>
         <h3><a name="comparison"></a>Comparison Functions</h3>
 
-        <p>
             <pre>&lt; VAR VAR</pre> 
+        <p>
             Less than.
         </p>
 
-        <p>
             <pre>&gt; VAR VAR</pre> 
+        <p>
             Greater than.
         </p>
 
-        <p>
             <pre>&lt;= VAR VAR</pre> 
+        <p>
             Less than OR equal to.
         </p>
 
-        <p>
             <pre>&gt;= VAR VAR</pre> 
+        <p>
             Greater than OR equal to.
         </p>
 
-        <p>
             <pre>== VAR VAR</pre> 
+        <p>
             Equal to.
         </p>
 
-        <p>
             <pre>!= VAR VAR</pre> 
+        <p>
             Not equal to.
         </p>
     </div>
@@ -236,13 +236,13 @@
     <div>
         <h3><a name="userdef"></a>User defined functions</h3>
 
-        <p>
             <pre>f arg1 arg2 = expression</pre>
+        <p>
             Define function "f" with arguments arg1 arg2
         </p>
 
-        <p>
             <pre>f 1 2</pre>
+        <p>
             Call the above function with arguments 1 2
         </p>
     </div>
@@ -250,13 +250,13 @@
     <div>
         <h3><a name="lists"></a>Lists</h3>
 
-        <p>
             <pre>[ 1, 2, 3 ]</pre> 
+        <p>
             List with three values
         </p>
 
-        <p>
             <pre>[]</pre>
+        <p>
             Empty List
         </p>
     </div>
@@ -264,18 +264,18 @@
     <div>
         <h3><a name="listexpand"></a>List Expansion</h3>
 
-        <p>
             <pre>.. END_VALUE</pre> 
+        <p>
             Create list with values 0 to END_VALUE
         </p>
 
-        <p>
             <pre>.. START_VALUE END_VALUE</pre>
+        <p>
             Create list with values START_VALUE to END_VALUE
         </p>
 
-        <p>
             <pre>.. START_VALUE END_VALUE STEP</pre>
+        <p>
             Create list with values between START_VALUE and END_VALUE with difference of STEP from start to end.
         </p>
     </div>
@@ -283,13 +283,13 @@
     <div>
         <h3><a name="listbuild"></a>List Builder</h3>
 
+            <pre>@@ INITIAL_LIST : NEXT_VALUE : CONDITION</pre>
         <p>
-            <pre>@@ INITIAL_LIST : NEXT_VALUE_FUNCTION : CONDITION</pre>
             Build a list starting with inital value, next value
         </p>
         
+            <pre>@@ INITIAL_LIST : NEXT_LIST_ITEM : NEXT_VALUE : CONDITION</pre>
         <p>
-            <pre>@@ INITIAL_LIST : NEXT_LIST_ITEM_FUNCTION : NEXT_VALUE_FUNCTION : CONDITION</pre>
             Build a list starting with inital value, next value
         </p>
 
@@ -297,6 +297,60 @@
         By default list builder token appends the next list item to the list. You can prepend the next list item by using '@^' to build a list. 
         '@$' is a synonym for '@@' which mean append to list.
         </p>
+
+        <pre>NEXT_VALUE</pre>
+        <p>
+            This is the expression or a function which will calculate the next value for building the list and for the CONDITION part.<br>
+            The expression needs to have exactly one argument prefixed with the '#' symbol, for example:
+            <pre class='code'> - #10 1</pre>
+            The value prefixed with '#' will be used as the starting value for the list builder.
+        </p>
+        
+        <pre>CONDITION</pre>
+        <p>
+            This result of the CONDITION determines whether list building continues or stops. If the CONDITION expression results in a False value, list building is stopped. If the CONDITION expression results in a True value, list building continues.<br>
+            The CONDITION expression needs to have at least ONE argument as the symbol '#'. This will be replaced with whatever NEXT_VALUE evaluates to.
+            Example of a CONDITION expression:
+            <pre class='code'> &gt; # 0 </pre>
+        </p>    
+
+        <pre>NEXT_LIST_ITEM</pre>
+        <p>
+            This section, if present, calculates the next value that will be put into the list being built.
+            Like the CONDITION expression, NEXT_LIST_ITEM expression too needs to have at least ONE argument as the symbol '#', which will be replaced with the results of evaluation of NEXT_VALUE expression.
+            Example:
+            <pre class='code'> * # 2 </pre>
+        </p>
+<br>     
+
+<p><b>Example of 3-TUPLE List Builder</b></p>
+<pre class='code'>
+ @@ [] : - #10 1 : &gt; # 0
+</pre>
+<p>The above code will output:</p>
+<pre class='code'>[ 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 ]</pre>
+   
+<br>     
+
+<p><b>Example of 4-TUPLE List Builder</b></p>
+<pre class='code'>
+ @$ [] : * # 2 : - #10 1 : &gt; # 0
+</pre>
+<p>The above code will output:</p>
+<pre class='code'>[ 20, 18, 16, 14, 12, 10, 8, 6, 4, 2 ]</pre>
+<p> Note that we can use '@$' in place of '@@'. They both mean append new items at the end of list. </p>
+
+<br>     
+
+<p><b>Example of 4-TUPLE Prepend List Builder</b></p>
+<pre class='code'>
+ @^ [100, 200] : + # 2 : - #10 2 : &gt; # 0
+</pre>
+<p>The above code will output:</p>
+<pre class='code'>[ 4, 6, 8, 10, 12, 200 ]</pre>
+<p>We have used two items in the initial list instead of an empty list here.</p>
+
+
 
 
     </div>

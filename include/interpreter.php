@@ -41,6 +41,10 @@ class Interpreter {
         $line = preg_split("/\n/", $program);
         for($i = 0; $i < sizeof($line); $i++ )
         {
+            $line[$i] = trim(str_replace("("," ( ", $line[$i]));
+            $line[$i] = trim(str_replace(")"," ) ", $line[$i]));
+            $line[$i] = trim(str_replace("["," [ ", $line[$i]));
+            $line[$i] = trim(str_replace("]"," ] ", $line[$i]));
             $line[$i] = trim(preg_replace("/\s+/"," ", $line[$i]));
             if($line[$i] != "")
             {
@@ -393,11 +397,13 @@ class Interpreter {
         while($b_condition) {
 
             if(!($i_nextValList === False)) {
-                $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$i_nextValList." "));
+                $nextCode = $i_nextValList;
+                while(!(strpos($nextCode, '#') === False )) $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$nextCode." "));
                 $nextListVal = $this->execute($nextCode);
             }
 
-            $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$i_nextVal." "));
+            $nextCode = $i_nextVal;
+            while(!(strpos($nextCode, '#') === False )) $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$nextCode." "));
             $nextVal = $this->execute($nextCode);
             
             $condition = trim(str_replace(" # ", " ".$nextVal." ", " ".$i_condition." "));
@@ -448,7 +454,7 @@ class Interpreter {
             }
         }
 
-        $output = substr($code, $startParen+1, ($endParen - $startParen) - 1); 
+        $output = trim(substr($code, $startParen+1, ($endParen - $startParen) - 1)); 
 
         return array( $output, $startParen, $endParen);
     }
