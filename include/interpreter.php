@@ -348,10 +348,6 @@ class Interpreter {
         if(!(strpos($code, '@$') === False)) $listCode = '@$';
         else if(!(strpos($code, '@^')=== False)) {$listCode = '@^'; $appendAtEnd = False;}
 
-        DEBUG::dump("listCode", $listCode);
-        DEBUG::dump("appendAtEnd", $appendAtEnd);
-
-
         $listAT = strpos($code, $listCode);
         $prefix = substr($code, 0, $listAT);
 
@@ -385,11 +381,6 @@ class Interpreter {
         $i_nextVal = trim($i_nextVal);
         $i_condition = trim($i_condition);
 
-        DEBUG::dump("next val list", $i_nextValList);
-        DEBUG::dump("next val ", $i_nextVal);
-        DEBUG::dump("condition ", $i_condition);
-
-        
         $nextVal = "";
         for( $i = strpos($i_nextVal, '#') + 1; substr($i_nextVal, $i, 1) != " " && $i < strlen($i_nextVal); $i++) {
             $nextVal .= substr($i_nextVal, $i, 1);
@@ -402,9 +393,7 @@ class Interpreter {
         while($b_condition) {
 
             if(!($i_nextValList === False)) {
-                DEBUG::log("NEXT VAL ".$nextVal);
                 $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$i_nextValList." "));
-                DEBUG::log(" NEXT CODE ".$nextCode);
                 $nextListVal = $this->execute($nextCode);
             }
 
