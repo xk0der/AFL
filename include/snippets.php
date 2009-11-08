@@ -52,3 +52,18 @@ sum 5
 ; Press the [Execute] button below to run this code.
 ",
 );
+
+$snippet['decimal_to_binary'] = array (
+"name" => "Decimal to binary conversion",
+"code" =>
+"; Decimal to Binary
+lsb n = & n 1
+next n = >> n 1
+
+; Use list expansion
+dec2bin n = @^ [] : lsb # : next #n : > # 0
+
+; dec 4 = bin 100
+dec2bin 4
+",
+);

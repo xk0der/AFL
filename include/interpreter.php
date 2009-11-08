@@ -28,7 +28,10 @@ class Interpreter {
          '>>_VAR_VAR' =>    array('rvalue' => '>> a b', 'args' => array('a', 'b')),
          '<_VAR_VAR' => array('rvalue' => '< a b', 'args' => array('a', 'b')),
          '>_VAR_VAR' => array('rvalue' => '> a b', 'args' => array('a', 'b')),
-         '<>_VAR_VAR' => array('rvalue' => '<> a b', 'args' => array('a', 'b')),
+         '==_VAR_VAR' => array('rvalue' => '== a b', 'args' => array('a', 'b')),
+         '<=_VAR_VAR' => array('rvalue' => '<= a b', 'args' => array('a', 'b')),
+         '>=_VAR_VAR' => array('rvalue' => '>= a b', 'args' => array('a', 'b')),
+         '!=_VAR_VAR' => array('rvalue' => '!= a b', 'args' => array('a', 'b')),
          '!_VAR' => array('rvalue' => '! a', 'args' => array('a')),
         );
     }
@@ -54,13 +57,13 @@ class Interpreter {
 
             if(substr($code, 0, 1) == ";") return ""; // Line is a comment 
 
-            else if(strpos($code, "=") === False)
+            else if(strpos($code, " = ") === False)
             {
                 $output .= $this->execute($code) . "\n";
             }
             else
             {
-                list($lvalue, $rvalue) = explode("=", $code);
+                list($lvalue, $rvalue) = explode(" = ", $code);
                 $lvalue = trim($lvalue);
                 $rvalue = trim($rvalue);
                 $this->storeSymbol($lvalue, $rvalue);
@@ -260,7 +263,16 @@ class Interpreter {
                     case ">":
                            $output .= $this->f_greater($r[1], $r[2]);
                            break;
-                    case "<>":
+                    case "<=":
+                           $output .= $this->f_less_or_equal($r[1], $r[2]);
+                           break;
+                    case ">=":
+                           $output .= $this->f_greater_or_equal($r[1], $r[2]);
+                           break;
+                    case "==":
+                           $output .= $this->f_equal($r[1], $r[2]);
+                           break;
+                    case "!=":
                            $output .= $this->f_notEqual($r[1], $r[2]);
                            break;
                     case "!":
@@ -477,12 +489,24 @@ class Interpreter {
         return ($num1) < ($num2) ? 1 : 0;
     } 
     
+    private function f_less_or_equal ($num1, $num2) {
+        return ($num1) <= ($num2) ? 1 : 0;
+    } 
+    
     private function f_greater ($num1, $num2) {
         return ($num1) > ($num2) ? 1 : 0;
     } 
     
+    private function f_greater_or_equal ($num1, $num2) {
+        return ($num1) >= ($num2) ? 1 : 0;
+    } 
+    
     private function f_notEqual ($num1, $num2) {
         return ($num1) != ($num2) ? 1 : 0;
+    }
+    
+    private function f_equal ($num1, $num2) {
+        return ($num1) == ($num2) ? 1 : 0;
     }
     
     private function f_not($num1) {
