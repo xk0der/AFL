@@ -199,10 +199,12 @@ class Interpreter {
                 {
                     if(isset($l[$i + 1])) {
                         $rvalue = trim(str_replace(" ".$args[$i]." ", " ".$l[$i + 1]." ", " ".$rvalue." "));
+                        $rvalue = trim(str_replace(" #".$args[$i]." ", " #".$l[$i + 1]." ", " ".$rvalue." "));
                     } else {
                         $output .= "Error $code - Argument count mismatch\n";
                     }
                 }
+                
 
                 while(!(strpos($rvalue,"(") === False)) $rvalue = $this->processComplex($rvalue);
                 if(!(strpos($rvalue,"[") === False)) {$output .= $this->execute($rvalue); break;}
@@ -371,8 +373,9 @@ class Interpreter {
         }
         
         $i_nextVal = preg_replace('/\#[0-9]+/','#', $i_nextVal);
-        $output = "";
+        $output = trim(implode(',',$initVal));
         $comma = "";
+        if(strlen($output) > 0) $comma = ", ";
         while($b_condition) {
             $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$i_nextVal." "));
             $nextVal = $this->execute($nextCode);
