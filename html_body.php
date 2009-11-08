@@ -1,4 +1,5 @@
-<div id="title">AFL - A Functional Language</div>
+<div id="title"><div style='float: left;'>AFL - A Functional Language</div><div style='text-align: right;'>
+<a href="help.php">Documentation</a></div></div>
 <div id="mainContainer">
     <form name="code" action="?e=1" method="POST">
         <div>

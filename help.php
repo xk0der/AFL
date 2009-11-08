@@ -17,10 +17,46 @@
     h3 {
         color: #006544;
     }
+
+    a:link {
+        color: #006DAE;
+        text-decoration: none;
+        border-bottom: 1px dotted #cccccc;
+    }
+
+    a:visited {
+        color: #006DAE;
+        text-decoration: none;
+        border-bottom: 1px dotted #cccccc;
+    }
+
+    a:hover {
+        background: #FFAC00;
+        color: #ffffff;
+        border-bottom: 1px solid #FF0000;
+        text-decoration: none;
+        -moz-border-radius: 3px;
+    }
+
+    a:active {
+        color: #006DAE;
+        text-decoration: none;
+        border-bottom: 1px dotted #cccccc;
+    }
+
+    .code {
+        color: #000000;
+        background: #cccccc;
+        width: 30%;
+        border: 1px dotted #888888;
+        padding: 3px;
+    }
 </style>
-<div>
-<h2>AFL - A Functional Language </h2>
+<div style="background: #ffffff;">
+<h2><a href=".">AFL - A Functional Language</a></h2>
+<a name='intro'></a>
     <div>
+        <h3>Introduction</h3>
         <p>
         As the name implies AFL is a pure functional language. The goal of creating AFL was to create an easy to parse functional language and help         me refurbish my PHP knowledge. :)
         </p>
@@ -31,7 +67,47 @@
     </div>
 
     <div>
-        <h3>Math Functions</h3>
+        <a name='toc'></a><h3>Table of contents</h3>
+        <ol>
+            <li> <a href="#intro">Introduction</a>
+            <li> <a href="#inbuilt">Inbuilt functions</a>
+            <ol>
+                <li> <a href="#math">Math functions</a>
+                <li> <a href="#bool">Boolean functions</a>
+                <li> <a href="#bitwise">Bitwise functions</a>
+            </ol>
+            <li> <a href="#userdef">User defined functions</a>
+            <li> <a href="#lists">Lists</a>
+                <ol>
+                <li> <a href="#listexpand">lists expansion</a>
+                <li> <a href="#listbuild">List builder</a>
+            </ol>
+        </ol>
+    </div>
+        
+    <div>
+    <a name="inbuilt"></a><h3>Inbuilt functions </h3>
+    AFL provides inbuilt functions to perform following operations:
+        <ul>
+            <li> <b>Arithmetic operations</b> <br>
+                 <p>Result of all arithmetic operations is either float or integer depending on the context.</p>
+            <li> <b>Boolean operations</b> <br>
+                <p>
+                In AFL boolean TRUE is represented by 1<br>
+                and boolean FALSE is represented by 0.<br>
+                All boolean functions return either TRUE or FALSE i.e 1 or 0.
+                </p>
+
+            <li> <b>Bitwise operations</b><br>
+                <p>
+                Bitwise functions allow you to manipulate individual bits in integer number.
+                </p>
+        </ul>
+    </div>
+
+    <div>
+
+        <h3><a name="math"></a>Math Functions</h3>
 
         <p>
             <pre>+ VAR VAR</pre>
@@ -62,10 +138,19 @@
             <pre>* VAR VAR</pre>
             Product of two numbers.
         </p>
+
+<b>Examples:</b>
+<pre class="code">
+/ 24 2
+* 7 9
+- 2 10
+% 6 3
+\ 2 3
+</pre>
     </div>
 
     <div>
-        <h3>Boolean Functions</h3>
+        <h3><a name="bool"></a>Boolean Functions</h3>
 
         <p>
             <pre>&amp;&amp; VAR VAR</pre>
@@ -85,7 +170,7 @@
 
     <div>
 
-        <h3>Bitwise Functions</h3>
+        <h3><a name="bitwise"></a>Bitwise Functions</h3>
 
         <p>
             <pre>&amp; VAR VAR</pre>
@@ -101,10 +186,20 @@
             <pre>~ VAR</pre>
             Complement.
         </p>
+        
+        <p>
+            <pre>&lt;&lt; VAR VAR</pre>
+            Left shift
+        </p>
+        
+        <p>
+            <pre>&gt;&gt; VAR VAR</pre>
+            Right shift
+        </p>
     </div>
 
     <div>
-        <h3>Comparison Functions</h3>
+        <h3><a name="comparison"></a>Comparison Functions</h3>
 
         <p>
             <pre>&lt; VAR VAR</pre> 
@@ -139,7 +234,7 @@
 
 
     <div>
-        <h3>User defined functions</h3>
+        <h3><a name="userdef"></a>User defined functions</h3>
 
         <p>
             <pre>f arg1 arg2 = expression</pre>
@@ -153,7 +248,7 @@
     </div>
 
     <div>
-        <h3>Lists</h3>
+        <h3><a name="lists"></a>Lists</h3>
 
         <p>
             <pre>[ 1, 2, 3 ]</pre> 
@@ -167,7 +262,7 @@
     </div>
 
     <div>
-        <h3>List Expansion</h3>
+        <h3><a name="listexpand"></a>List Expansion</h3>
 
         <p>
             <pre>.. END_VALUE</pre> 
@@ -186,7 +281,7 @@
     </div>
 
     <div>
-        <h3>List Builder</h3>
+        <h3><a name="listbuild"></a>List Builder</h3>
 
         <p>
             <pre>@@ INITIAL_LIST : NEXT_VALUE_FUNCTION : CONDITION</pre>
