@@ -60,10 +60,12 @@ $snippet['decimal_to_binary'] = array (
 lsb n = & n 1
 next n = >> n 1
 
-; Use list expansion
+; Use list builder
 dec2bin n = @^ [] : lsb # : next #n : > # 0
 
 ; dec 4 = bin 100
 dec2bin 4
+
+; Press the [Execute] button below to run this code.
 ",
 );

@@ -28,7 +28,12 @@
             <textarea name="program" id="program" rows="10" cols="80"><?= AFL::$program ?></textarea>
         </div>
         <div>
+            <div style='float: left;'>
             <input type="submit" value="Execute" title="Passes the AFL code above to the server for execution.">
+            </div>
+            <div style="text-align: right;">
+            <input type="checkbox" <?= AFL::$disableTrace ?> name="disableTrace"> Disable Internal Trace
+            </div>
         </div>
     </form>
     <div id="output_head">Output
