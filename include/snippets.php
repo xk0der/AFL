@@ -45,7 +45,8 @@ $snippet['series_summation']= array (
 "code" =>
 "; Summation of series 
 series n = * 2 n
-sum n = + (series n) (series (- n 1))
+sum 0 = 0
+sum n = + (series n) (sum (- n 1))
 ; Sum 5 terms of the series
 sum 5
 

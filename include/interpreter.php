@@ -373,7 +373,7 @@ class Interpreter {
         for($i = 0; $i < sizeof($initVal); $i++)
         {
             if(trim($initVal[$i]) != "") {
-                $_t[sizeof($initVal)] = $initVal[$i]; 
+                $_t[sizeof($_t)] = $initVal[$i]; 
             }
         }
 
@@ -391,7 +391,7 @@ class Interpreter {
         }
         
         $i_nextVal = preg_replace('/\#[0-9]+/','#', $i_nextVal);
-        $output = trim(implode(',',$initVal));
+        $output = trim(implode(', ',$initVal));
         $comma = "";
         if(strlen($output) > 0) $comma = ", ";
         while($b_condition) {

@@ -1,6 +1,9 @@
+<html>
+<head>
+<title>AFL - A Functional Language : Documentation </title>
 <style>
     div {
-        border: 1px solid gray;
+        border: 1px solid #dddddd;
         padding: 5px;
         margin: 2px;
     }
@@ -52,17 +55,21 @@
         padding: 3px;
     }
 </style>
+</head>
+<body>
 <div style="background: #ffffff;">
 <h2><a href=".">AFL - A Functional Language</a></h2>
 <a name='intro'></a>
     <div>
         <h3>Introduction</h3>
         <p>
-        As the name implies AFL is a pure functional language. The goal of creating AFL was to create an easy to parse functional language and help         me refurbish my PHP knowledge. :)
+        As the name implies AFL is a functional language. The goal of creating AFL was to create an easy to parse functional language and help         me refurbish my PHP knowledge. :)
         </p>
         <p>
-        While writing AFL code, understand that it is just a hobby project and hence the parser relies on white-spaces to separate language tokens.
-        <b>Hence white spaces are significant so use them liberally</b>
+         Use the table of contents below to find out what's available, how to use things, what can be done and what can't.
+        </p>
+        <p>
+        You may also want to try out AFL code snippets available from a drop down at this page <a href='.'>AFL - A Functional Language</a>
         </p>
     </div>
 
@@ -78,10 +85,13 @@
             </ol>
             <li> <a href="#userdef">User defined functions</a>
             <li> <a href="#lists">Lists</a>
-                <ol>
+            <ol>
                 <li> <a href="#listexpand">lists expansion</a>
                 <li> <a href="#listbuild">List builder</a>
             </ol>
+            <li> <a href='#comments'>Comments</a>
+            <li> <a href='#complex'>Complex expression</a>
+            <li> <a href='#limitations'>Limitations and special notes</a>
         </ol>
     </div>
         
@@ -144,9 +154,19 @@
 / 24 2
 * 7 9
 - 2 10
-% 6 3
-\ 2 3
+% 4 3
+\ 10 3
 </pre>
+
+<b>Output:</b>
+<pre class="code">
+12
+63
+-8
+1
+3
+</pre>
+
     </div>
 
     <div>
@@ -161,11 +181,32 @@
         <p>
             Boolean OR.
         </p>
+            
+            <pre>^ VAR VAR</pre>
+        <p>
+            Exclusive OR.
+        </p>
 
             <pre>! VAR</pre>
         <p>
             Boolean NOT.
         </p>
+
+<b>Examples:</b>
+<pre class="code">
+&amp;&amp; 1 0
+|| 1 0
+^ 1 1
+! 0
+</pre>
+
+<b>Output:</b>
+<pre class="code">
+0
+1
+0
+1
+</pre>
     </div>
 
     <div>
@@ -196,6 +237,24 @@
             <pre>&gt;&gt; VAR VAR</pre>
             Right shift
         </p>
+
+<b>Examples:</b>
+<pre class="code">
+& 4 3
+| 4 3
+~ 4
+&lt;&lt; 4 1
+&gt;&gt; 4 1
+</pre>
+
+<b>Output:</b>
+<pre class="code">
+0
+7
+-5
+8
+2
+</pre>
     </div>
 
     <div>
@@ -230,20 +289,77 @@
         <p>
             Not equal to.
         </p>
-    </div>
 
+<b>Examples:</b>
+<pre class="code">
+&lt; 4 9
+&gt; 4 9
+&lt;= 4 9
+&gt;= 4 9
+== 4 9
+!= 4 9
+</pre>
+
+<b>Output:</b>
+<pre class="code">
+1
+0
+1
+0
+0
+1
+</pre>
+    </div>
 
     <div>
         <h3><a name="userdef"></a>User defined functions</h3>
-
-            <pre>f arg1 arg2 = expression</pre>
+            
         <p>
-            Define function "f" with arguments arg1 arg2
+            <b>Defining/creating functions</b><br>
+            You can define functions by using the following syntax.
         </p>
-
-            <pre>f 1 2</pre>
+            <pre>f argument(s) = expression</pre>
         <p>
-            Call the above function with arguments 1 2
+            A function may accept ZERO or more arguments. 
+        </p>
+        Examples:
+        <pre class='code'>
+i = 10
+f n = + n 1
+pi = / 22 7
+g a b c = + (* a c) (* b c)
+        </pre>
+        <p>
+            <b>Calling/using functions</b><br>
+            To call a function type it's name followed by values for the arguments. Another definite way to call a function is by enclosing the function name and arguments within parentheses '( )'.
+        </p>
+        Examples:
+        <pre class='code'>
+i
+f 10
+(pi)
+g (i) 7 8
+        </pre>
+       <p>
+       In the above examples parentheses around 'pi' are optional. But while calling function 'g' with 'i' as one of the argument, you need to enclose 'i' with parentheses. This is required so that function 'i' gets called and its value is used as the first argument of function 'g'.
+       </p>
+        <p>
+        <b>Simulating IF conditions for a function</b><br>
+        Suppose you have a math function defined as follows
+        </p>
+    <pre>
+     F n = 2n 
+         | 1 IF n = 0 
+     </pre>
+        <p>
+        To define such a function in AFL you write the following code
+        </p>
+        <pre class='code'>
+f n = * 2 n
+f 0 = 1
+        </pre>
+        <p>
+            So to simulate IF conditions for a function, you provide as many definitions for the function as needed to meet the given criteria. Appropriate function will be called based on the argument being passed, when the function is invoked.
         </p>
     </div>
 
@@ -258,6 +374,10 @@
             <pre>[]</pre>
         <p>
             Empty List
+        </p>
+
+        <p>
+            Lists in AFL are very limited in functionality. Refer to <a href='#limitations'>limitations</a> section for more information.
         </p>
     </div>
 
@@ -278,6 +398,19 @@
         <p>
             Create list with values between START_VALUE and END_VALUE with difference of STEP from start to end.
         </p>
+<b>Examples:</b>
+<pre class="code">
+.. 10
+.. 1 10
+.. 1 10 2
+</pre>
+
+<b>Output:</b>
+<pre class="code">
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+[1, 3, 5, 7, 9]
+</pre>
     </div>
 
     <div>
@@ -347,12 +480,96 @@
  @^ [100, 200] : + # 2 : - #10 2 : &gt; # 0
 </pre>
 <p>The above code will output:</p>
-<pre class='code'>[ 4, 6, 8, 10, 12, 200 ]</pre>
-<p>We have used two items in the initial list instead of an empty list here.</p>
-
-
-
-
+<pre class='code'>[ 4, 6, 8, 10, 12, 100, 200 ]</pre>
+<p>Apart from the prepend list builder, the examples also shows the use of non-empty list as initial value. </p>
     </div>
+    
+    <div>
+        <h3><a name="comments"></a>Comments</h3>
 
+        <p>
+            You may insert comments into AFL code by starting a line with a semi-colon ';'.<br>
+            Comments need to be on a line of their own.
+        </p>
+            Example:
+            <pre class='code'>
+; This is a comment
+f a b = + a b <span style='color:red; font-weight: bold;'>; This won't work</span>
+            </pre>
+    </div>
+    
+    <div>
+        <h3><a name="complex"></a>Complex expressions</h3>
+
+        <p>
+            You may use output of one function as input of another function to create complex expressions.
+        </p>
+            Example:
+            <pre class='code'>
+f a = + a 1
+g b = + a 2
+f (g 7)
+            </pre>
+
+            <p>Notice how we used parentheses around 'g 7' to tell AFL that this is a function call, evaluate it first. Had we not used parentheses, AFL would have complained about not being able to found a matching signature for 'f g 7', i.e. a function named f accepting two arguments.
+            <br>
+
+            So the rule of the thumb is to always enclose functions in parentheses when passing their result to another function. See another example below.
+            </p>
+            Example:
+            <pre class='code'>
+i = 10
+f a = * a 2
+f (i)
+f 3
+            </pre>
+            <p>
+            As you can see 'i' is a function which takes no arguments and always returns 10. To pass its result to 'f' we need to enclose it inside parentheses as shown. Literal values can be passed without parentheses.
+            </p>
+            <p>
+            You may use as many deeply nested functions using parentheses, as the need may be.
+            </p>
+            Example:
+            <pre class='code'>
++ 1 (+ 2 (+ 3 4))
+            </pre>
+        </p>
+    </div>
+    <div>
+        <h3><a name="limitations"></a>Limitations and special notes</h3>
+        
+        <p>
+        There are some intentional limitations to the AFL language to keep it simple. Most of them are quite obvious from the documentation above.
+        The things that are not obvious are listed here.
+        </p>
+
+        <p>
+            <b> Lists can only be used as the last argument for a function or expression </b><br>
+            This limitation, as stated in the introduction, is to keep the parsing simple. Since list-builder's output is a list hence list-builders too can only be used at the end of an expression.
+        </p>
+        
+        <p>
+            <b> List manipulation is not supported, entire list has to be consumed at once.</b><br>
+            You cannot extract a particular item from a list. This limitation exits by design, which means, I haven't coded anything to do such a thing! :). <br> <br> 
+            So if you pass a list to a function, all the items from the list are passed from left to right, one by one, for the function to consume it. The following example will clarify this.
+        </p>
+        Example:
+        <pre class='code'>
+f n = + n 1
+f [1, 2, 3, 4, 5]
+        </pre>
+Output:
+<pre class='code'>
+2
+3
+4
+5
+6
+</pre>
+    <p>
+    As you can see, the entire list was consumed by the function 'f', by using every element of the list as its argument, one by one.
+    </p>
+    </div>
 </div>
+</body>
+</html>

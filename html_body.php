@@ -1,5 +1,5 @@
-<div id="title"><div style='float: left;'>AFL - A Functional Language</div><div style='text-align: right;'>
-<a href="help.php">Documentation</a></div></div>
+<div id="title"><div style='float: left;'><a href="help.php" title="View AFL documentaion">Documentation</a></div><div style='text-align: right;'>AFL - A Functional Language
+</div></div>
 <div id="mainContainer">
     <form name="code" action="?e=1" method="POST">
         <div>
@@ -33,7 +33,7 @@
             <input type="submit" value="Execute" title="Passes the AFL code above to the server for execution.">
             </div>
             <div style="text-align: right;">
-            <input type="checkbox" <?= AFL::$disableTrace ?> name="disableTrace"> Disable Internal Trace
+            <label style="font-size: 12px;"><input type="checkbox" <?= AFL::$disableTrace ?> name="disableTrace"> Disable Internal Trace &nbsp;&nbsp;&nbsp;</label>
             </div>
         </div>
     </form>
