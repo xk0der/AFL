@@ -1,5 +1,10 @@
 <?php
 
+// AFL - A functional language
+// (c) 2009, Amit Singh, all rights reserved.
+// AFL code and documentation is licensed under GPL version 2
+// Please refer to the LICENSE file for complete licensing terms.
+
 require_once("afl.php");
 
 class Debug {
