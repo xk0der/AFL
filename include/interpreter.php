@@ -190,9 +190,6 @@ class Interpreter {
             }
         }
         */
-
-        DEBUG::dump("_l", $_l);
-
         return array($sig, $_l); 
     }
 

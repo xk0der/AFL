@@ -88,6 +88,7 @@
             <ol>
                 <li> <a href="#listexpand">lists expansion</a>
                 <li> <a href="#listbuild">List builder</a>
+                <li> <a href="#listop">List operators</a>
             </ol>
             <li> <a href='#comments'>Comments</a>
             <li> <a href='#complex'>Complex expression</a>
@@ -485,6 +486,31 @@ f 0 = 1
     </div>
     
     <div>
+        <h3><a name="listop"></a>List operators</h3>
+            <pre>@& LIST</pre>
+        <p>
+            List length : This operator computes the length of the list.
+        </p>
+            <pre>@# VAR LIST</pre>
+        <p>
+            List Item: Use this operator to extract a list item out of a list.<br>
+            VAR is the index of the item in the list. Indexes start with ZERO (0). 
+        </p>
+
+<b>Examples:</b>
+<pre class="code">
+@& [1,2,3,4]
+@# 2 [1,2,3,4]
+</pre>
+<b>Output:</b>
+<pre class="code">
+4
+3
+</pre>
+
+    </div>
+    
+    <div>
         <h3><a name="comments"></a>Comments</h3>
 
         <p>
@@ -547,29 +573,16 @@ f 3
             <b> Lists can only be used as the last argument for a function or expression </b><br>
             This limitation, as stated in the introduction, is to keep the parsing simple. Since list-builder's output is a list hence list-builders too can only be used at the end of an expression.
         </p>
-        
-        <p>
-            <b> List manipulation is not supported, entire list has to be consumed at once.</b><br>
-            You cannot extract a particular item from a list. This limitation exits by design, which means, I haven't coded anything to do such a thing! :). <br> <br> 
-            So if you pass a list to a function, all the items from the list are passed from left to right, one by one, for the function to consume it. The following example will clarify this.
-        </p>
-        Example:
-        <pre class='code'>
-f n = + n 1
-f [1, 2, 3, 4, 5]
-        </pre>
-Output:
-<pre class='code'>
-2
-3
-4
-5
-6
-</pre>
-    <p>
-    As you can see, the entire list was consumed by the function 'f', by using every element of the list as its argument, one by one.
-    </p>
     </div>
+</div>
+
+<div style="margin:auto; text-align:center; background: #cccccc; padding:3px;">
+<p style="margin:0px; padding:0px; font-size: 10px; font-weight: bold;">
+(c) 2009, Amit Singh (xk0der), All Rights Reserved.
+</p>
+<p style="font-size: 10px; margin:0px; padding:0px;">
+<a href="http://xkoder.com">http://xkoder.com</a> | <a href="http://blog.xkoder.com">blog.xkoder.com</a>
+</p>
 </div>
 </body>
 </html>

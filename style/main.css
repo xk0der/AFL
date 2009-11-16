@@ -30,6 +30,7 @@ a:active {
 
 #title {
     -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
     padding: 5px;
     font-size: 14px;
     font-weight: bold;
@@ -49,6 +50,7 @@ a:active {
     display: block;
     border: 1px dotted #dddddd;
     -moz-border-radius: 3px; 
+    -webkit-border-radius: 3px; 
     height: 50%;
     background: #000000;
     color: #ffffff;
@@ -63,9 +65,10 @@ a:active {
 #debug {
     border: 1px dotted #dddddd;
     -moz-border-radius: 3px;
-    height: 95%;
+    -webkit-border-radius: 3px;
+    height: 100%;
     overflow-y: scroll;
-    overflow-x: auto;
+    overflow-x: hidden;
 }
 
 .debugMsg:nth-child(odd) {
@@ -81,6 +84,7 @@ a:active {
     background: #dddddd;
     padding: 3px;
     -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
 }
 
 #debug_head {
@@ -88,6 +92,7 @@ a:active {
     background: #257264;
     padding: 3px;
     -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
 }
 
 #code_head {
@@ -95,9 +100,15 @@ a:active {
     background: #724A25;
     padding: 3px;
     -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
 }
 
 .error {
     color: red;
+    font-weight: bold;
+}
+
+#footer {
+    font-size: 10px;
     font-weight: bold;
 }
