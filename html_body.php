@@ -1,5 +1,6 @@
 <div id="title"><div style='float: left;'><a href="help.php" title="View AFL documentaion">Documentation</a></div><div style='text-align: right;'>AFL - A Functional Language
 </div></div>
+
 <div id="mainContainer">
     <form name="code" action="?e=1" method="POST">
         <div>
@@ -44,11 +45,15 @@
         <pre><?= AFL::$output ?></pre>
     </div>
 </div>
-<div id="debug_head">Internal Trace Dump
-    <img src="image/question.png" align="top" title="Internal PHP state dumps for AFL." >
-</div>
+
+<div>
+    <div id="debug_head">Internal Trace Dump
+        <img src="image/question.png" align="top" title="Internal PHP state dumps for AFL." >
+    </div>
+
 <div id="debug">
 <pre>
 <?= AFL::$debugLog ?>
 </pre>
+</div>
 </div>

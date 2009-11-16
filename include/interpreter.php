@@ -38,6 +38,8 @@ class Interpreter {
          '>=_VAR_VAR' => array('rvalue' => '>= a b', 'args' => array('a', 'b')),
          '!=_VAR_VAR' => array('rvalue' => '!= a b', 'args' => array('a', 'b')),
          '!_VAR' => array('rvalue' => '! a', 'args' => array('a')),
+         '@&_LIST' => array('rvalue' => '@& a', 'args' => array('a')),
+         '@#_VAR_LIST' => array('rvalue' => '@# a b', 'args' => array('a','b')),
         );
     }
 
@@ -103,7 +105,7 @@ class Interpreter {
             return false;
         }
 
-        if(!(strpos($lvalue, ('(')) === False )) return false;
+        if(strpos($lvalue, ('(')) !== False ) return false;
 
         for($i = 1 ; $i < sizeof($l); $i++ ) {
             if(is_numeric($l[$i])) {
@@ -116,6 +118,7 @@ class Interpreter {
     }
 
     private function createRawSignature ($lvalue, $index) {
+        $lvalue =  $lvalue." ";
         $l = explode(" ", $lvalue);
         $sig = $l[Interpreter::F_NAME];
 
@@ -123,12 +126,59 @@ class Interpreter {
             $index = sizeof($l);
         }
 
-        if(substr($l[0], 0, 1) == "[" || (isset($l[1]) && substr($l[1], 0, 1) == "[")  ) {
+        if(substr($l[0], 0, 1) == "[") {
+        //|| (isset($l[1]) && substr($l[1], 0, 1) == "[")  ) {
             return False;
         }
-        
-        if(!(strpos($lvalue, ('(')) === False )) return False;
 
+        if(strpos($lvalue, ('(')) !== False ) return False;
+
+        $_l = array();
+        $val = "";
+        $listStart = False;
+        $firstTime = True;
+        $item = 0;
+        $_l[$item] = $l[0];
+
+        for($i = 0; $i < strlen($lvalue); ++$i) {
+            $ch = substr($lvalue, $i, 1);
+
+            if($ch == "[") $listStart = True;
+
+            if( ($ch == " " && $listStart === False) 
+                || ($ch == "]" && $listStart) 
+              ) {
+
+                if($firstTime) { 
+                    $val = ""; 
+                    $listStart = False; 
+                    $firstTime = False; 
+                    continue; 
+                }
+               
+                if(trim($val) == "") continue;
+                
+                ++$item;
+                $_l[$item] = $val;
+
+                if($item <= $index) {
+                    if($listStart) {  
+                        $sig .= "_LIST"; }
+                    else {  
+                        $sig .= "_VAR"; 
+                    }
+                } else {
+                    $sig .= "_".$val;
+                }
+
+                $val = "";
+                $listStart = False;
+            } else {
+                if($ch != "[" && $ch != "]") $val .= $ch;
+            }
+        }
+        
+        /*
         for($i = 1 ; $i < sizeof($l); $i++ ) {
             if($l[$i] != "") {
                 if($i <= $index)
@@ -139,7 +189,11 @@ class Interpreter {
                 }
             }
         }
-        return $sig; 
+        */
+
+        DEBUG::dump("_l", $_l);
+
+        return array($sig, $_l); 
     }
 
     private function execute ($code) {
@@ -152,9 +206,9 @@ class Interpreter {
         $safe_raw_sig = "";
         $foundRawSig = false;
 
-        if(     !(strpos($code, "@^" ) === False) 
-          ||    !(strpos($code, "@$") === False)
-          ||    !(strpos($code, "@@") === False)
+        if(     (strpos($code, "@^" ) !== False) 
+          ||    (strpos($code, "@$") !== False)
+          ||    (strpos($code, "@@") !== False)
           ) {
             $code = $this->expandLists($code);
             DEBUG::log("Expand list new code :".$code);
@@ -166,7 +220,7 @@ class Interpreter {
         {
             DEBUG::log("Matched terminating signature : $safe_sig | rvalue = ".htmlentities($this->symbolTable[$sig]['rvalue']));
             $rvalue = $this->symbolTable[$sig]['rvalue'];
-            $raw_sig = $this->createRawSignature($rvalue, false);
+            list($raw_sig, $r) = $this->createRawSignature($rvalue, false);
        
 
             if(isset($this->symbolTable[$raw_sig])) {
@@ -177,21 +231,20 @@ class Interpreter {
             $foundRawSig = true;
 
             $rvalue = $output;
-            while(!(strpos($rvalue,"(") === False)) $rvalue = $this->processComplex($rvalue);
+            while(strpos($rvalue,"(") !== False) $rvalue = $this->processComplex($rvalue);
             $output = $rvalue;
                 
             if(sizeof(explode(" ", $output)) > 1) {
                 $output = $this->execute($output);
             }
         }
-       
-       
+
         for($k = 0; !$foundRawSig && $k < sizeof(explode(" ", $code)); $k++)  {
-            $raw_sig = $this->createRawSignature($code, $k);
+            list($raw_sig, $r) = $this->createRawSignature($code, $k);
 
             if($raw_sig === False) break;
         
-            if(trim($raw_sig) == "") return "";
+            if(trim($raw_sig) == "") break;
             
             $safe_raw_sig = htmlentities($raw_sig);
             
@@ -218,10 +271,10 @@ class Interpreter {
                 }
                 
 
-                while(!(strpos($rvalue,"(") === False)) $rvalue = $this->processComplex($rvalue);
-                if(!(strpos($rvalue,"[") === False)) {$output .= $this->execute($rvalue); break;}
+                while(strpos($rvalue,"(") !== False) $rvalue = $this->processComplex($rvalue);
+                //if(strpos($rvalue,"[") !== False) {$output .= $this->execute($rvalue); break;}
 
-                $r = explode(" ", $rvalue);
+                $fn = explode(" ", $rvalue);
                 DEBUG::dump("Arguments", $r);
                 switch($r[0]) {
                     case "+":
@@ -296,6 +349,12 @@ class Interpreter {
                                $output .= $this->createRange(0 ,$r[1], 1);
                            }
                            break;
+                    case "@&":
+                           $output .= $this->listLen($r[1]); 
+                           break;
+                    case "@#": 
+                           $output .= $this->listItem($r[1], $r[2]);
+                           break;
                     default:
                            DEBUG::log("Recursing :".htmlentities($rvalue));
                            $output .= $this->execute($rvalue);
@@ -304,12 +363,15 @@ class Interpreter {
             }
 
             if($foundRawSig) break;
+        
         }
         
 
+
+
         if(!$foundRawSig)
         {
-            if(!(strpos($code, "(") === False)) {
+            if(strpos($code, "(") !== False) {
                 $newcode = $code;
                 
                 while (strpos($newcode, "(") != False )
@@ -322,7 +384,7 @@ class Interpreter {
                     $output .= $this->execute($newcode);
                 }
             } 
-            else if(!(strpos($code, '[') === False)) {
+            else if(strpos($code, '[') !== False) {
                 list($lvalue, $rvalue) = explode('[', $code);
                 $lvalue = trim($lvalue);
                 $rvalue = substr($rvalue, 0, strpos($rvalue, ']'));
@@ -354,8 +416,8 @@ class Interpreter {
         $appendAtEnd = True; // AppendAt End
         $listCode = '@@';
 
-        if(!(strpos($code, '@$') === False)) $listCode = '@$';
-        else if(!(strpos($code, '@^')=== False)) {$listCode = '@^'; $appendAtEnd = False;}
+        if(strpos($code, '@$') !== False) $listCode = '@$';
+        else if(strpos($code, '@^') !== False) {$listCode = '@^'; $appendAtEnd = False;}
 
         $listAT = strpos($code, $listCode);
         $prefix = substr($code, 0, $listAT);
@@ -386,7 +448,7 @@ class Interpreter {
 
         $b_condition = True;
        
-        if(!($i_nextValList === False)) $i_nextValList = trim($i_nextValList);
+        if($i_nextValList !== False) $i_nextValList = trim($i_nextValList);
         $i_nextVal = trim($i_nextVal);
         $i_condition = trim($i_condition);
 
@@ -401,21 +463,21 @@ class Interpreter {
         if(strlen($output) > 0) $comma = ", ";
         while($b_condition) {
 
-            if(!($i_nextValList === False)) {
+            if($i_nextValList !== False) {
                 $nextCode = $i_nextValList;
-                while(!(strpos($nextCode, '#') === False )) $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$nextCode." "));
+                while(strpos($nextCode, '#') !== False ) $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$nextCode." "));
                 $nextListVal = $this->execute($nextCode);
             }
 
             $nextCode = $i_nextVal;
-            while(!(strpos($nextCode, '#') === False )) $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$nextCode." "));
+            while(strpos($nextCode, '#') !== False ) $nextCode = trim(str_replace(" # ", " ".$nextVal." ", " ".$nextCode." "));
             $nextVal = $this->execute($nextCode);
             
             $condition = trim(str_replace(" # ", " ".$nextVal." ", " ".$i_condition." "));
             $b_condition = intval($this->execute($condition)) == 0 ? False : True;
 
             $val = $nextVal;
-            if(!($i_nextValList === False)) $val = $nextListVal;
+            if($i_nextValList !== False) $val = $nextListVal;
             
             if($appendAtEnd) $output .= $comma.$val;
             else $output = $val.$comma.$output;
@@ -436,7 +498,7 @@ class Interpreter {
         $flag = false;
         $output = $this->execute($output);
 
-        $raw_sig = $this->createRawSignature($output, false);
+        list($raw_sig, $r) = $this->createRawSignature($output, false);
         if(isset($this->symbolTable[$raw_sig])) {
             $newcode = substr($code, 0, $openParen)."(".$output.")".substr($code, $closeParen+ 1, strlen($code));
         } else {
@@ -462,6 +524,25 @@ class Interpreter {
         $output = trim(substr($code, $startParen+1, ($endParen - $startParen) - 1)); 
 
         return array( $output, $startParen, $endParen);
+    }
+
+    private function listLen ($list) {
+        $l = explode(",", $list);
+        return sizeof($l);
+    }
+
+    private function listItem ($item, $list) {
+        $l = explode(",", $list);
+        if(abs($item) >= sizeof($l)) { 
+            DEBUG::log("<span class='error'>@# $item [ $list ] (Error): Index out of range.</span>");
+            return "<span class='error'>Index out of range!</span>";
+        }
+
+        if($item < 0) {
+            $item = sizeof($l) + $item;
+        }
+
+        return trim($l[$item]);
     }
 
     private function createRange($rangeStart , $rangeEnd, $step) {
