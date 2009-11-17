@@ -56,9 +56,19 @@ class Interpreter {
             if($line[$i] != "")
             {
                 DEBUG::log("Processing : ".htmlentities($line[$i]));
-                $output .= $this->process($line[$i]);
+                $_out = $this->process($line[$i]);
+                if(AFL::$commandLine) {
+                    echo $_out; 
+                } else {
+                    $output .= $out;
+                }
             }
         }
+
+        if(AFL::$commandLine) {
+            return "";
+        }
+
         DEBUG::dump("Symbol Table", $this->symbolTable);
         return $output;
     }
@@ -111,7 +121,9 @@ class Interpreter {
             if(is_numeric($l[$i])) {
                 $sig .= "_" . $l[$i];
             } else if ($l[$i] != "") {
-                $sig .= "_VAR"; 
+                
+                if(substr($l[$i], 0, 1) == "@") $sig .= "_LIST";
+                else  $sig .= "_VAR"; 
             }
         }
         return $sig; 
@@ -127,7 +139,6 @@ class Interpreter {
         }
 
         if(substr($l[0], 0, 1) == "[") {
-        //|| (isset($l[1]) && substr($l[1], 0, 1) == "[")  ) {
             return False;
         }
 
@@ -163,8 +174,8 @@ class Interpreter {
 
                 if($item <= $index) {
                     if($listStart) {  
-                        $sig .= "_LIST"; }
-                    else {  
+                        $sig .= "_LIST"; 
+                    } else {  
                         $sig .= "_VAR"; 
                     }
                 } else {
@@ -178,18 +189,6 @@ class Interpreter {
             }
         }
         
-        /*
-        for($i = 1 ; $i < sizeof($l); $i++ ) {
-            if($l[$i] != "") {
-                if($i <= $index)
-                {
-                    $sig .= "_VAR"; 
-                } else {
-                    $sig .= "_".$l[$i];
-                }
-            }
-        }
-        */
         return array($sig, $_l); 
     }
 
@@ -216,6 +215,7 @@ class Interpreter {
         if($sig && isset($this->symbolTable[$sig]))
         {
             DEBUG::log("Matched terminating signature : $safe_sig | rvalue = ".htmlentities($this->symbolTable[$sig]['rvalue']));
+
             $rvalue = $this->symbolTable[$sig]['rvalue'];
             list($raw_sig, $r) = $this->createRawSignature($rvalue, false);
        
@@ -255,13 +255,19 @@ class Interpreter {
                 
                 $args = $this->symbolTable[$raw_sig]['args'];
                 $rvalue = $this->symbolTable[$raw_sig]['rvalue'];
-                $l = explode(" ", $code);
+                
+                //$l = explode(" ", $code);
 
                 for($i = 0; $i < sizeof($args); $i++)
                 {
-                    if(isset($l[$i + 1])) {
-                        $rvalue = trim(str_replace(" ".$args[$i]." ", " ".$l[$i + 1]." ", " ".$rvalue." "));
-                        $rvalue = trim(str_replace(" #".$args[$i]." ", " #".$l[$i + 1]." ", " ".$rvalue." "));
+                    if(isset($r[$i + 1])) {
+                        if(substr($args[$i], 0, 1) == "@" ) {
+                            $rvalue = trim(str_replace(" ".$args[$i]." ", " [ ".$r[$i + 1]." ] ", " ".$rvalue." "));
+                            $rvalue = trim(str_replace(" #".$args[$i]." ", " #[".$r[$i + 1]." ] ", " ".$rvalue." "));
+                        } else {
+                            $rvalue = trim(str_replace(" ".$args[$i]." ", " ".$r[$i + 1]." ", " ".$rvalue." "));
+                            $rvalue = trim(str_replace(" #".$args[$i]." ", " #".$r[$i + 1]." ", " ".$rvalue." "));
+                        }
                     } else {
                         $output .= "Error $code - Argument count mismatch\n";
                     }
@@ -269,6 +275,7 @@ class Interpreter {
                 
 
                 while(strpos($rvalue,"(") !== False) $rvalue = $this->processComplex($rvalue);
+                
                 //if(strpos($rvalue,"[") !== False) {$output .= $this->execute($rvalue); break;}
 
                 $fn = explode(" ", $rvalue);

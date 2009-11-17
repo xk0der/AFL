@@ -1,0 +1,17 @@
+#!/usr/bin/php
+<?php
+
+require_once('include/interpreter.php');
+require_once('include/afl.php');
+require_once('include/debug.php');
+
+AFL::$commandLine = True;
+
+$aflI = new Interpreter();
+
+$fp = fopen("php://stdin","r");
+$line = "";
+while($l= fgets($fp)) {
+    $line .= $l . "\n";
+}
+$aflI->run($line);

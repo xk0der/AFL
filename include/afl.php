@@ -15,11 +15,13 @@ class AFL {
     public static $program;
     public static $debugLog;
     public static $disableTrace;
+    public static $commandLine;
 
     private function __construct () {}
 
     public static function main () {
         if(isset($_GET['e']) && $_GET['e'] == 1 ) {
+            AFL::$commandLine = False;
             $code = isset($_POST['program']) ? $_POST['program'] : "";
             AFL::$disableTrace = isset($_POST['disableTrace']) ? ($_POST['disableTrace'] == "on" ? "checked" : "") : "";
             AFL::$program = $code;
