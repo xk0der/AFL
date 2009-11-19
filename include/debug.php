@@ -10,14 +10,22 @@ require_once("afl.php");
 class Debug {
     public static $messages;
     public static function log($str) {
-        if(AFL::$disableTrace != "checked")  Debug::$messages .= "<div class='debugMsg'>".$str."</div>";
+        if(AFL::$commandLine && AFL::$interactive) {
+           //echo "DEBUG:".$str."\n";
+        } else {
+            if(AFL::$disableTrace != "checked")  Debug::$messages .= "<div class='debugMsg'>".$str."</div>";
+        }
     }
 
     public static function dump($msg, &$v) {
-        if(AFL::$disableTrace != "checked") {
-            Debug::$messages .= "<div class='debugMsg debugDump'><b>[".htmlentities($msg)."]</b>:\n";
-            Debug::$messages .= htmlentities(var_export($v, true));
-            Debug::$messages .= "</div>";
+        if(AFL::$commandLine && AFL::$interactive) {
+            //echo "DEBUG:[".$msg."]:".var_dump($v, true)."\n";
+        } else {
+            if(AFL::$disableTrace != "checked") {
+                Debug::$messages .= "<div class='debugMsg debugDump'><b>[".htmlentities($msg)."]</b>:\n";
+                Debug::$messages .= htmlentities(var_export($v, true));
+                Debug::$messages .= "</div>";
+            }
         }
     }
 }

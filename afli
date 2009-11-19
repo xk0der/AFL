@@ -4,14 +4,41 @@
 require_once('include/interpreter.php');
 require_once('include/afl.php');
 require_once('include/debug.php');
+ini_set("html_errors", "1");
 
 AFL::$commandLine = True;
+
+foreach($argv as $k => $val) {
+
+    switch($val) {
+
+        case "-i": 
+        case "--interactive":
+                AFL::$interactive = True;
+                break;
+        case "-ver":
+        case "--version":
+                break;
+        case "-?":
+        case "--help":
+                break;
+    }
+}
 
 $aflI = new Interpreter();
 
 $fp = fopen("php://stdin","r");
 $line = "";
-while($l= fgets($fp)) {
-    $line .= $l . "\n";
+if(AFL::$interactive) echo "@> "; 
+while($l = fgets($fp)) {
+    if(AFL::$interactive) {
+        $aflI->run($l);
+        echo "@> "; 
+    } else {
+        $line .= $l . "\n";
+    }
 }
-$aflI->run($line);
+
+if(!AFL::$interactive) {
+    $aflI->run($line);
+}

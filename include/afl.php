@@ -16,12 +16,16 @@ class AFL {
     public static $debugLog;
     public static $disableTrace;
     public static $commandLine;
+    public static $interactive;
 
-    private function __construct () {}
+    private function __construct () {
+            AFL::$commandLine = False;
+            AFL::$interactive = False;
+    }
 
     public static function main () {
         if(isset($_GET['e']) && $_GET['e'] == 1 ) {
-            AFL::$commandLine = False;
+
             $code = isset($_POST['program']) ? $_POST['program'] : "";
             AFL::$disableTrace = isset($_POST['disableTrace']) ? ($_POST['disableTrace'] == "on" ? "checked" : "") : "";
             AFL::$program = $code;
