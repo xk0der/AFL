@@ -321,15 +321,34 @@
         </p>
             <pre>f argument(s) = expression</pre>
         <p>
+            Where 'f' is the name of the function followed by space separated list of arguments the function accepts.
             A function may accept ZERO or more arguments. 
+            <br>
+            <br>
+            <b>Types of arguments : </b>
+            There are three type of arguments in AFL
+            <ul>
+                <li><b>Variables:</b> Variables are values that my change. Specified using a name.</li>
+                <li><b>Literals:</b>Numbers i.e. numeric literals can be used as argument place holder. Look at simulating IF condition below for an example.</li>
+                <li><b>Lists:</b>To specify that a particular variable argument is a list prefix it with '@' symbol</li>
+            </ul>
+            <br>
+            <b>Passing functions as arguments : </b>
+            You may even pass functions as arguments. (Think of it like passing a function pointer in C, or a function referance in other languages.) See the 'map' function below for an example how it is done.
         </p>
         Examples:
         <pre class='code'>
 i = 10
 f n = + n 1
+sum a b = + a b
+map i f @list = f i @list
 pi = / 22 7
 g a b c = + (* a c) (* b c)
         </pre>
+        <p>
+            <b>By </b><br>
+        </p>
+
         <p>
             <b>Calling/using functions</b><br>
             To call a function type it's name followed by values for the arguments. Another definite way to call a function is by enclosing the function name and arguments within parentheses '( )'.
@@ -338,6 +357,8 @@ g a b c = + (* a c) (* b c)
         <pre class='code'>
 i
 f 10
+sum 2 3
+map 5 sum [1,2,3]
 (pi)
 g (i) 7 8
         </pre>
@@ -377,9 +398,6 @@ f 0 = 1
             Empty List
         </p>
 
-        <p>
-            Lists in AFL are very limited in functionality. Refer to <a href='#limitations'>limitations</a> section for more information.
-        </p>
     </div>
 
     <div>
@@ -487,7 +505,7 @@ f 0 = 1
     
     <div>
         <h3><a name="listop"></a>List operators</h3>
-            <pre>@& LIST</pre>
+            <pre>@&amp; LIST</pre>
         <p>
             List length : This operator computes the length of the list.
         </p>
@@ -499,7 +517,7 @@ f 0 = 1
 
 <b>Examples:</b>
 <pre class="code">
-@& [1,2,3,4]
+@&amp; [1,2,3,4]
 @# 2 [1,2,3,4]
 </pre>
 <b>Output:</b>
@@ -570,15 +588,13 @@ f 3
         </p>
 
         <p>
-            <b> Lists can only be used as the last argument for a function or expression </b><br>
-            This limitation, as stated in the introduction, is to keep the parsing simple. Since list-builder's output is a list hence list-builders too can only be used at the end of an expression.
         </p>
     </div>
 </div>
 
 <div style="margin:auto; text-align:center; background: #cccccc; padding:3px;">
 <p style="margin:0px; padding:0px; font-size: 10px; font-weight: bold;">
-(c) 2009, Amit Singh (xk0der), All Rights Reserved.
+(c) 2010, Amit Singh (xk0der), All Rights Reserved.
 </p>
 <p style="font-size: 10px; margin:0px; padding:0px;">
 <a href="http://xkoder.com">http://xkoder.com</a> | <a href="http://blog.xkoder.com">blog.xkoder.com</a>

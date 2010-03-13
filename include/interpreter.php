@@ -406,7 +406,7 @@ class Interpreter {
                     $output .= "[".$rvalue."]";
                 }
             } else {
-                if( preg_match("/^[0-9]+$/",trim($code)) != False ) {
+                if( preg_match("/^[-+]?[0-9]*[.]?[0-9]+[eE]?[0-9]*$/",trim($code)) != False ) {
                     $output .= $safe_code;
                 } else {
                     $output .= "<span class='error'>Error: No match found for symbol `$safe_code'</span>";

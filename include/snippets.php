@@ -76,3 +76,75 @@ dec2bin 4
 ; Press the [Execute] button below to run this code.
 ",
 );
+
+$snippet['map'] = array (
+"name" => "Map function",
+"code" =>
+"; Map a function to list
+; Example of passing function to a function
+
+; Functions to map
+add a b = + a b
+sub a b = - a b
+mul a b = * a b
+
+; Definition of map function
+map fn val @list = fn val @list
+
+; Our example list
+list = .. 1 3
+
+; Do the mappings.
+map add 5 (list)
+
+map sub 2 (list)
+
+map mul 5 (.. 10 50 10)
+
+; Press the [Execute] button below to run this code.
+",
+);
+
+$snippet['reduce'] = array (
+"name" => "Reduce function",
+"code" =>
+"; Reduce a list using foldl
+
+; List to use [1,2,3,4]
+list = .. 1 4
+
+; Functions to apply on reduce
+fn1 a b = + a b
+fn2 a b = * a b                
+fn3 a b = - a b                
+
+; Helper function - Extract list value
+listVal n @list = @# (- (@& @list) n) @list
+
+; foldl definition
+foldl i fn @list 1 = fn i (listVal 1 @list)
+foldl i fn @list n = foldl (fn i (listVal n @list)) fn @list (- n 1)
+
+; Reduce definition
+; - reduce with initializer
+reduce fn @list init = foldl init fn @list (@& @list)
+; - reduce with no initializer
+reduce fn @list = foldl (listVal (@& @list) @list) fn @list (- (@& @list) 1)
+
+; Call reduce on list using fnx
+; (((1 + 2) + 3) + 4)
+reduce fn1 (list)
+
+; (((1  * 2) * 3) * 4)
+reduce fn2 (list)
+
+; (((1 - 2) - 3) - 4)
+reduce fn3 (list)
+
+; reduce with initial value
+; ((((0 - 1) - 2) - 3) - 4)
+reduce fn3 (list) 0
+
+; Press the [Execute] button below to run this code.
+",
+);
