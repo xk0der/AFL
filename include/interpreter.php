@@ -9,6 +9,9 @@ require_once('debug.php');
 
 class Interpreter {
     private $symbolTable;
+    
+    private $listBuilderCache;
+
     const F_NAME = 0;
 
     public function __construct() {
@@ -60,7 +63,7 @@ class Interpreter {
                 if(AFL::$commandLine) {
                     echo $_out; 
                 } else {
-                    $output .= $out;
+                    $output .= $_out;
                 }
             }
         }
