@@ -323,8 +323,8 @@
         <p>
             Where 'f' is the name of the function followed by space separated list of arguments the function accepts.
             A function may accept ZERO or more arguments. 
-            <br>
-            <br>
+         </P>
+         <p>
             <b>Types of arguments : </b>
             There are three type of arguments in AFL
             <ul>
@@ -332,9 +332,11 @@
                 <li><b>Literals:</b>Numbers i.e. numeric literals can be used as argument place holder. Look at simulating IF condition below for an example.</li>
                 <li><b>Lists:</b>To specify that a particular variable argument is a list prefix it with '@' symbol</li>
             </ul>
-            <br>
+         </p>
+         <p>
             <b>Passing functions as arguments : </b>
             You may even pass functions as arguments. (Think of it like passing a function pointer in C, or a function referance in other languages.) See the 'map' function below for an example how it is done.
+        </p>
         </p>
         Examples:
         <pre class='code'>
@@ -345,10 +347,6 @@ map i f @list = f i @list
 pi = / 22 7
 g a b c = + (* a c) (* b c)
         </pre>
-        <p>
-            <b>By </b><br>
-        </p>
-
         <p>
             <b>Calling/using functions</b><br>
             To call a function type it's name followed by values for the arguments. Another definite way to call a function is by enclosing the function name and arguments within parentheses '( )'.
@@ -538,7 +536,7 @@ f 0 = 1
             Example:
             <pre class='code'>
 ; This is a comment
-f a b = + a b <span style='color:red; font-weight: bold;'>; This won't work</span>
+f a b = + a b <span style='color:red; font-weight: bold;'>; Comments like these won't work, they need to be on a line of their own.</span>
             </pre>
     </div>
     
@@ -585,6 +583,18 @@ f 3
         <p>
         There are some intentional limitations to the AFL language to keep it simple. Most of them are quite obvious from the documentation above.
         The things that are not obvious are listed here.
+        </p>
+
+        <p>
+        <ul>
+            <li><b>PHP Script timeout:</b> Scripts being run through the web interface may timeout. You may try the command-line interpreter to execute time intensive scripts.</li>
+            <li><b>No lazy evaluation:</b> AFL does not support lazy evaluation like some popular functional languages (eg: Haskell)</li>
+            <li><b>Lack of optimization:</b> As of now, the interpreter has not been optimized at all. The current code&apos;s main motive is to execute the code properly and ina reliable manner only. Speed of execution is not looked into, as of now.</li>
+
+            <br>
+            <b>The snippets</b><br>
+            Even though there are certain limitaions to AFL, still there are some cool and nifty things that can be done. You may have a look at snippets on the <a href='http://xkoder.com/afl'>Demo page</a> to see few examples. Use the drop down to select an example and click on the execute button to try it out. And do experiment with the snippet, trying out different values and/or editing some code to see how things are working!
+        </ul>
         </p>
 
         <p>
