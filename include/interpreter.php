@@ -398,12 +398,16 @@ class Interpreter {
                 $listVal = explode(",", $rvalue);
 
                 if(strlen($lvalue) != 0) {
-                    for($i = 0; $i < sizeof($listVal); $i++) {
+                    $output .= " [ ";
+                    $size = sizeof($listVal);
+                    for($i = 0; $i < $size; $i++) {
                         $newCode = trim($lvalue." ".trim($listVal[$i]));
-                        $output .= $this->execute($newCode)."\n";
+                        $output .= trim($this->execute($newCode));
+                        if($i != $size -1 ) $output .= ", ";
                     }
+                    $output .= " ] ";
                 } else {
-                    $output .= "[".$rvalue."]";
+                    $output .= " [".$rvalue."] ";
                 }
             } else {
                 if( preg_match("/^[-+]?[0-9]*[.]?[0-9]+[eE]?[0-9]*$/",trim($code)) != False ) {
