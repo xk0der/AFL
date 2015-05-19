@@ -4,14 +4,18 @@
 require_once('include/interpreter.php');
 require_once('include/afl.php');
 require_once('include/debug.php');
-ini_set("html_errors", "1");
+ini_set("html_errors", "0");
 
 AFL::$commandLine = True;
+AFL::$disableTrace = True;
 
 foreach($argv as $k => $val) {
 
     switch($val) {
-
+        case "-t": 
+        case "--trace":
+                AFL::$disableTrace = False;
+                break;
         case "-i": 
         case "--interactive":
                 AFL::$interactive = True;
@@ -32,6 +36,19 @@ $line = "";
 if(AFL::$interactive) echo "@> "; 
 while($l = fgets($fp)) {
     if(AFL::$interactive) {
+        if (trim($l) === "help") {
+            echo "quit/exit - to end.\n";
+            echo "dump - to print symbol table\n";
+            echo "@> "; 
+            continue;
+        }
+        else if(trim($l) == "quit" || trim($l) == "exit") {
+            exit;
+        } else if(trim($l) == "dump") {
+            $aflI->dumpSymbolTable();
+            echo "@> "; 
+            continue;
+        }
         $aflI->run($l);
         echo "@> "; 
     } else {

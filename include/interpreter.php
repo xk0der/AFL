@@ -46,6 +46,10 @@ class Interpreter {
         );
     }
 
+    public function dumpSymbolTable() {
+        DEBUG::dump("Symbol Table", $this->symbolTable, true);
+    }
+
     public function run (&$program) {
         $output = "";
         $line = preg_split("/\n/", $program);
@@ -72,7 +76,8 @@ class Interpreter {
             return "";
         }
 
-        DEBUG::dump("Symbol Table", $this->symbolTable);
+        if(!AFL::$interactive && !AFL::$commandLine)$this->dumpSymbolTable();
+
         return $output;
     }
 
@@ -282,7 +287,7 @@ class Interpreter {
                 //if(strpos($rvalue,"[") !== False) {$output .= $this->execute($rvalue); break;}
 
                 $fn = explode(" ", $rvalue);
-                DEBUG::dump("Arguments", $r);
+                DEBUG::traceDump("Arguments", $r);
                 switch($r[0]) {
                     case "+":
                            $output .= $this->add($r[1], $r[2]); 
@@ -413,7 +418,7 @@ class Interpreter {
                 if( preg_match("/^[-+]?[0-9]*[.]?[0-9]+[eE]?[0-9]*$/",trim($code)) != False ) {
                     $output .= $safe_code;
                 } else {
-                    $output .= "<span class='error'>Error: No match found for symbol `$safe_code'</span>";
+                    Debug::error("Error: No match found for symbol `$safe_code'");
                 }
             }
         }
@@ -497,7 +502,7 @@ class Interpreter {
 
         $initVal = explode(',', $output);
 
-        DEBUG::dump("Expanded List", $initVal);
+        DEBUG::traceDump("Expanded List", $initVal);
 
         return $prefix." [ ".$output." ]";
     }
@@ -545,8 +550,8 @@ class Interpreter {
     private function listItem ($item, $list) {
         $l = explode(",", $list);
         if(abs($item) >= sizeof($l)) { 
-            DEBUG::log("<span class='error'>@# $item [ $list ] (Error): Index out of range.</span>");
-            return "<span class='error'>Index out of range!</span>";
+            DEBUG::error("@# $item [ $list ] (Error): Index out of range.");
+            return "Index out of range!";
         }
 
         if($item < 0) {
@@ -558,7 +563,7 @@ class Interpreter {
 
     private function createRange($rangeStart , $rangeEnd, $step) {
         if($step == 0) { 
-            DEBUG::log("<span class='error'>.. $rangeEnd $rangeEnd $step (Warning): range operator was passed ZERO as `step' value</span>");
+            DEBUG::error(".. $rangeEnd $rangeEnd $step (Warning): range operator was passed ZERO as `step' value");
             return $rangeStart;
         }
 
@@ -650,17 +655,17 @@ class Interpreter {
     }
 
     private function divide($num1, $num2) {
-        if($num2 == 0) return "<span class='error'>Error: Division by ZERO `/ $num1 $num2'</span>\n";
+        if($num2 == 0) return "Error: Division by ZERO `/ $num1 $num2'\n";
         return floatval($num1) / floatval($num2);
     }
     
     private function divide_int($num1, $num2) {
-        if($num2 == 0) return "<span class='error'>Error: Division by ZERO `/ $num1 $num2'</span>\n";
+        if($num2 == 0) return "Error: Division by ZERO `/ $num1 $num2'\n";
         return (int)(intval($num1) / intval($num2));
     }
 
     private function modulus($num1, $num2) {
-        if($num2 == 0) return "<span class='error'>Error: Division by ZERO `% $num1 $num2'</span>\n";
+        if($num2 == 0) return "Error: Division by ZERO `% $num1 $num2'\n";
         return floatval($num1) % floatval($num2);
     }
 
