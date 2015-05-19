@@ -64,16 +64,8 @@ class Interpreter {
             {
                 DEBUG::log("Processing : ".htmlentities($line[$i]));
                 $_out = $this->process($line[$i]);
-                if(AFL::$commandLine) {
-                    echo $_out; 
-                } else {
-                    $output .= $_out;
-                }
+                $output .= $_out;
             }
-        }
-
-        if(AFL::$commandLine) {
-            return "";
         }
 
         if(!AFL::$interactive && !AFL::$commandLine)$this->dumpSymbolTable();

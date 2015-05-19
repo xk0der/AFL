@@ -1,0 +1,5 @@
+; Factorial
+f 0 = 1
+f x = * x (f (- x 1))
+; Factorial 10
+f 10

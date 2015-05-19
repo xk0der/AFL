@@ -10,7 +10,7 @@ require_once("afl.php");
 class Debug {
     public static $messages;
     public static function log($str) {
-        if(AFL::$commandLine && AFL::$interactive && !AFL::$disableTrace) {
+        if(AFL::$commandLine && !AFL::$disableTrace) {
             echo "DEBUG:".$str."\n";
         } else {
             if(AFL::$disableTrace != "checked")  Debug::$messages .= "<div class='debugMsg'>".$str."</div>";
@@ -18,7 +18,7 @@ class Debug {
     }
     
     public static function error($str) {
-        if(AFL::$commandLine && AFL::$interactive) {
+        if(AFL::$commandLine) {
             echo "ERROR:".$str."\n";
         } else {
             if(AFL::$disableTrace != "checked")  Debug::$messages .= "<div class='debugMsg'><span class='error'>".$str."</span></div>";
@@ -30,7 +30,7 @@ class Debug {
     } 
 
     public static function dump($msg, &$v, $trace = false) {
-        if(AFL::$commandLine && AFL::$interactive && $trace) {
+        if(AFL::$commandLine && $trace) {
             echo "DEBUG:[".$msg."]:";
             var_dump($v);
             echo "\n";

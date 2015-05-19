@@ -1,0 +1,5 @@
+; Power of a number
+f x 0 = 1
+f x y = * x (f x (- y 1))
+; 2 raised to the power 10
+f 2 10

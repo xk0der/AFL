@@ -1,0 +1,10 @@
+; Decimal to Binary
+lsb n = & n 1
+next n = >> n 1
+
+; Use list builder
+dec2bin n = @^ [] : lsb # : next #n : > # 0
+
+; dec 4 = bin 100
+dec2bin 4
+

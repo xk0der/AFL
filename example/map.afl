@@ -1,0 +1,20 @@
+; Map a function to list
+; Example of passing function to a function
+
+; Functions to map
+add a b = + a b
+sub a b = - a b
+mul a b = * a b
+
+; Definition of map function
+map fn val @list = fn val @list
+
+; Our example list
+list = .. 1 3
+
+; Do the mappings.
+map add 5 (list)
+
+map sub 2 (list)
+
+map mul 5 (.. 10 50 10)
