@@ -1,0 +1,17 @@
+; Given two values, find the max
+
+; Function to find max value
+;  compare a b and call function f to resolve the result
+max a b = f a b ( > a  b )
+
+; Value resolution function
+;   Return first value if third paramter is 1
+;   Return second value if third parameter is 0
+f a b 1 = a
+f a b 0 = b
+
+
+; Test the max function
+max 4 400
+max 8 3
+max 1234 4567
